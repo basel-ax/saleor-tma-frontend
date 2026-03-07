@@ -1,6 +1,6 @@
-// ─── API Client ───────────────────────────────────────────────────────────────
-// All requests include the Telegram initData as an Authorization header.
-// Backend URL is configured via VITE_BACKEND_BASE_URL environment variable.
+// ─── API Client (GraphQL) ───────────────────────────────────────────────────────
+// Backend GraphQL endpoint is configured via VITE_BACKEND_BASE_URL.
+// All requests include Telegram initData payload in a Telegram-Init-Data header.
 
 import type {
   Restaurant,
@@ -10,82 +10,137 @@ import type {
   OrderSuccessResponse,
 } from '../types';
 
+type GraphQLResponse<D> = {
+  data?: D;
+  errors?: unknown[];
+};
+
 const BASE_URL = (import.meta.env.VITE_BACKEND_BASE_URL as string) || '';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 
-function getInitData(): string {
-  return window.Telegram?.WebApp?.initData ?? '';
+function getTelegramInitHeader(): string {
+  // Prefer the richer init data (initDataUnsafe.user) when available; fallback to initData.
+  // Always stringify to JSON so the backend can parse a structured payload.
+  const init = (window as any).Telegram?.WebApp?.initDataUnsafe?.user ??
+               (window as any).Telegram?.WebApp?.initData ?? {};
+  try {
+    return JSON.stringify(init);
+  } catch {
+    return '{}';
+  }
 }
 
 function buildHeaders(): HeadersInit {
-  const initData = getInitData();
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
+    'Telegram-Init-Data': getTelegramInitHeader(),
   };
-  if (initData) {
-    headers['Authorization'] = `tma ${initData}`;
-  }
   return headers;
 }
 
-async function request<T>(
-  path: string,
-  options?: RequestInit,
-): Promise<T> {
-  const url = `${BASE_URL}${path}`;
+async function requestGraphQL<T>(query: string, variables?: any): Promise<T> {
+  const url = `${BASE_URL}/graphql`;
+  const payload = { query, variables };
   const response = await fetch(url, {
-    ...options,
-    headers: {
-      ...buildHeaders(),
-      ...(options?.headers ?? {}),
-    },
+    method: 'POST',
+    headers: buildHeaders(),
+    body: JSON.stringify(payload),
   });
 
   if (!response.ok) {
     let message = `HTTP ${response.status}`;
     try {
-      const err = await response.json() as { message?: string };
-      if (err.message) message = err.message;
+      const err = await response.json();
+      if (err && (err as any).message) message = (err as any).message;
     } catch {
       // ignore parse errors
     }
     throw new Error(message);
   }
 
-  return response.json() as Promise<T>;
+  const json = (await response.json()) as GraphQLResponse<T>;
+  if (json.errors && json.errors.length > 0) {
+    throw new Error('GraphQL error');
+  }
+  return json.data as T;
 }
 
-// ─── Endpoints ────────────────────────────────────────────────────────────────
+// ─── Endpoints (GraphQL) ─────────────────────────────────────────────────────────
 
-/** GET /restaurants */
+/** GET restaurants */
 export async function fetchRestaurants(): Promise<Restaurant[]> {
-  return request<Restaurant[]>('/restaurants');
+  const query = `query GetRestaurants {
+    restaurants {
+      id
+      name
+      description
+      imageUrl
+      tags
+    }
+  }`;
+  const data = await requestGraphQL<{ restaurants: Restaurant[] }>(query);
+  return data.restaurants;
 }
 
-/** GET /restaurants/:restaurantId/categories */
+/** GET categories for a restaurant */
 export async function fetchCategories(restaurantId: string): Promise<Category[]> {
-  return request<Category[]>(`/restaurants/${restaurantId}/categories`);
+  const query = `query GetCategories($restaurantId: ID!) {
+    categories(restaurantId: $restaurantId) {
+      id
+      restaurantId
+      name
+      description
+      imageUrl
+    }
+  }`;
+  const data = await requestGraphQL<{ categories: Category[] }>(query, {
+    restaurantId,
+  });
+  return data.categories;
 }
 
-/** GET /restaurants/:restaurantId/categories/:categoryId/dishes */
+/** GET dishes for a restaurant/category */
 export async function fetchDishes(
   restaurantId: string,
   categoryId: string,
 ): Promise<Dish[]> {
-  return request<Dish[]>(
-    `/restaurants/${restaurantId}/categories/${categoryId}/dishes`,
-  );
+  const query = `query GetDishes($restaurantId: ID!, $categoryId: ID!) {
+    dishes(restaurantId: $restaurantId, categoryId: $categoryId) {
+      id
+      restaurantId
+      categoryId
+      name
+      description
+      imageUrl
+      price
+      currency
+    }
+  }`;
+  const data = await requestGraphQL<{ dishes: Dish[] }>(query, {
+    restaurantId,
+    categoryId,
+  });
+  return data.dishes;
 }
 
-/** POST /orders */
+/** POST place order */
 export async function createOrder(
   payload: CreateOrderPayload,
 ): Promise<OrderSuccessResponse> {
-  return request<OrderSuccessResponse>('/orders', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
+  const mutation = `mutation PlaceOrder($input: PlaceOrderInput!) {
+    placeOrder(input: $input) {
+      orderId
+      status
+    }
+  }`;
+  const data = await requestGraphQL<{ placeOrder: OrderSuccessResponse }>(
+    mutation,
+    {
+      input: payload,
+    },
+  );
+  return data.placeOrder;
 }
 
 // ─── Telegram WebApp type augmentation ───────────────────────────────────────
