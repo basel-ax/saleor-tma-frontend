@@ -9,6 +9,7 @@ import DishCard from "../components/DishCard";
 
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
+import { useLanguage } from "../context/LanguageContext";
 
 const DishesPage: FC = () => {
   const { restaurantId, categoryId } = useParams<{
@@ -16,6 +17,7 @@ const DishesPage: FC = () => {
     categoryId: string;
   }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const addItem = useCartStore((s) => s.addItem);
   const incrementItem = useCartStore((s) => s.incrementItem);
@@ -159,8 +161,8 @@ const DishesPage: FC = () => {
   // ─── Main render ───────────────────────────────────────────────────────────
   return (
     <div className="page">
-      {/* Header */}
-      <PageHeader title={category?.name ?? "Dishes"} showBack showCart />
+       {/* Header */}
+       <PageHeader title={category?.name ?? t('dishes_title')} showBack showCart />
 
       {/* Category description */}
       {category?.description && (
@@ -174,15 +176,15 @@ const DishesPage: FC = () => {
         </div>
       )}
 
-      {/* Dish count label */}
-      <div className="px-4 pb-2">
-        <p
-          className="text-xs font-semibold uppercase tracking-wider"
-          style={{ color: "var(--tg-theme-hint-color)" }}
-        >
-          {dishes.length} {dishes.length === 1 ? "dish" : "dishes"}
-        </p>
-      </div>
+       {/* Dish count label */}
+       <div className="px-4 pb-2">
+         <p
+           className="text-xs font-semibold uppercase tracking-wider"
+           style={{ color: "var(--tg-theme-hint-color)" }}
+         >
+           {t('dishes_section_label', dishes.length)}
+         </p>
+       </div>
 
       {/* Dish list */}
       <div className="page-content pt-0">

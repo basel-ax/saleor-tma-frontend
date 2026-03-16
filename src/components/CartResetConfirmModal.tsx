@@ -1,4 +1,5 @@
 import type { FC } from "react";
+import { useLanguage } from "../context/LanguageContext";
 
 interface CartResetConfirmModalProps {
   newRestaurantName: string;
@@ -11,6 +12,8 @@ export const CartResetConfirmModal: FC<CartResetConfirmModalProps> = ({
   onConfirm,
   onCancel,
 }) => {
+  const { t } = useLanguage();
+
   return (
     <div className="modal-overlay" onClick={onCancel}>
       <div className="modal-sheet" onClick={(e) => e.stopPropagation()}>
@@ -33,41 +36,34 @@ export const CartResetConfirmModal: FC<CartResetConfirmModalProps> = ({
           </div>
         </div>
 
-        {/* Title */}
-        <h2
-          className="text-xl font-bold text-center mb-3"
-          style={{ color: "var(--tg-theme-text-color)" }}
-        >
-          Switch Restaurant?
-        </h2>
+         {/* Title */}
+         <h2
+           className="text-xl font-bold text-center mb-3"
+           style={{ color: "var(--tg-theme-text-color)" }}
+         >
+           {t('cart_reset_confirm_title')}
+         </h2>
 
-        {/* Message */}
-        <p
-          className="text-sm text-center leading-relaxed mb-6"
-          style={{ color: "var(--tg-theme-hint-color)" }}
-        >
-          Your cart will be cleared and a new cart will be created for{" "}
-          <span
-            className="font-semibold"
-            style={{ color: "var(--tg-theme-text-color)" }}
-          >
-            {newRestaurantName}
-          </span>
-          .
-        </p>
+         {/* Message */}
+         <p
+           className="text-sm text-center leading-relaxed mb-6"
+           style={{ color: "var(--tg-theme-hint-color)" }}
+         >
+           {t('cart_reset_confirm_description', newRestaurantName)}
+         </p>
 
-        {/* Actions */}
-        <div className="flex flex-col gap-3">
-          {/* Continue — destructive action */}
-          <button onClick={onConfirm} className="tg-btn tg-btn-destructive">
-            Continue
-          </button>
+         {/* Actions */}
+         <div className="flex flex-col gap-3">
+           {/* Continue — destructive action */}
+           <button onClick={onConfirm} className="tg-btn tg-btn-destructive">
+             {t('cart_reset_confirm_continue')}
+           </button>
 
-          {/* Cancel */}
-          <button onClick={onCancel} className="tg-btn tg-btn-secondary">
-            Cancel
-          </button>
-        </div>
+           {/* Cancel */}
+           <button onClick={onCancel} className="tg-btn tg-btn-secondary">
+             {t('cart_reset_confirm_cancel')}
+           </button>
+         </div>
       </div>
     </div>
   );

@@ -4,6 +4,7 @@
 
 import "./mockEnv";
 import "./index.css";
+import { LanguageProvider } from "./context/LanguageContext";
 
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
@@ -49,7 +50,9 @@ if (!rootElement) throw new Error("Root element not found");
 createRoot(rootElement).render(
   <StrictMode>
     <QueryClientProvider client={queryClient}>
-      <App />
+      <LanguageProvider>
+        <App />
+      </LanguageProvider>
     </QueryClientProvider>
   </StrictMode>,
 );

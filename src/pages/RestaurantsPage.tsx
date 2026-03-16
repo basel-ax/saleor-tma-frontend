@@ -13,16 +13,18 @@ import CartResetConfirmModal from "../components/CartResetConfirmModal";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
 import CartBadge from "../components/CartBadge";
+import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
 
-const RestaurantsPage: FC = () => {
-  const navigate = useNavigate();
-  const isDifferentRestaurant = useCartStore((s) => s.isDifferentRestaurant);
-  const clearCart = useCartStore((s) => s.clearCart);
+  const RestaurantsPage: FC = () => {
+    const navigate = useNavigate();
+    const isDifferentRestaurant = useCartStore((s) => s.isDifferentRestaurant);
+    const clearCart = useCartStore((s) => s.clearCart);
 
-  const [searchQuery, setSearchQuery] = useState("");
-  const [pendingRestaurant, setPendingRestaurant] = useState<Restaurant | null>(
-    null,
-  );
+    const [searchQuery, setSearchQuery] = useState("");
+    const [pendingRestaurant, setPendingRestaurant] = useState<Restaurant | null>(
+      null,
+    );
+    const [settingsOpen, setSettingsOpen] = useState(false);
 
   // ─── Data fetching ──────────────────────────────────────────────────────────
   const {
@@ -150,19 +152,43 @@ const RestaurantsPage: FC = () => {
   // ─── Main render ─────────────────────────────────────────────────────────────
   return (
     <div className="page">
-      {/* Header */}
-      <div
-        className="flex items-center justify-between px-4 py-3 sticky top-0 z-40"
-        style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-      >
-        <h1
-          className="text-xl font-bold"
-          style={{ color: "var(--tg-theme-text-color)" }}
-        >
-          🍽️ Restaurants
-        </h1>
-        <CartBadge />
-      </div>
+       {/* Header */}
+       <div
+         className="flex items-center justify-between px-4 py-3 sticky top-0 z-40"
+         style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
+       >
+         <h1
+           className="text-xl font-bold"
+           style={{ color: "var(--tg-theme-text-color)" }}
+         >
+           🍽️ Restaurants
+         </h1>
+         <div className="flex items-center gap-2">
+           <CartBadge />
+           <button
+             onClick={() => setSettingsOpen(true)}
+             aria-label="Settings"
+             className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"
+             style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+           >
+             <svg
+               width="18"
+               height="18"
+               viewBox="0 0 24 24"
+               fill="none"
+               stroke="var(--tg-theme-text-color)"
+               strokeWidth="2"
+               strokeLinecap="round"
+               strokeLinejoin="round"
+               aria-hidden="true"
+             >
+               <circle cx="12" cy="12" r="1" />
+               <circle cx="12" cy="5" r="1" />
+               <circle cx="12" cy="19" r="1" />
+             </svg>
+           </button>
+         </div>
+       </div>
 
       {/* Search */}
       <div
@@ -255,17 +281,23 @@ const RestaurantsPage: FC = () => {
         )}
       </div>
 
-      {/* Cart reset confirmation modal */}
-      {pendingRestaurant && (
-        <CartResetConfirmModal
-          newRestaurantName={pendingRestaurant.name}
-          onConfirm={handleConfirmSwitch}
-          onCancel={handleCancelSwitch}
-        />
-      )}
-    </div>
-  );
-};
+       {/* Cart reset confirmation modal */}
+       {pendingRestaurant && (
+         <CartResetConfirmModal
+           newRestaurantName={pendingRestaurant.name}
+           onConfirm={handleConfirmSwitch}
+           onCancel={handleCancelSwitch}
+         />
+       )}
+       
+       {/* Settings bottom sheet */}
+       <SettingsBottomSheet
+         isOpen={settingsOpen}
+         onClose={() => setSettingsOpen(false)}
+       />
+     </div>
+   );
+ };
 
 export { RestaurantsPage };
 export default RestaurantsPage;

@@ -27,6 +27,30 @@ export interface Dish {
   currency: string;
 }
 
+// ─── GraphQL Input Types (for backend) ───────────────────────────────────────
+
+export interface DeliveryLocationInput {
+  id?: string;
+  address: string;
+  city?: string;
+  country?: string;
+  latitude: number;
+  longitude: number;
+}
+
+export interface OrderItemInput {
+  dishId: string;
+  quantity: number;
+  notes?: string;
+}
+
+export interface PlaceOrderInput {
+  restaurantId: string;
+  items: OrderItemInput[];
+  deliveryLocation: DeliveryLocationInput;
+  customerNote?: string;
+}
+
 // ─── Cart ─────────────────────────────────────────────────────────────────────
 
 export interface CartItem {
@@ -49,28 +73,18 @@ export interface Cart {
 
 // ─── Order ────────────────────────────────────────────────────────────────────
 
-export interface DeliveryLocation {
-  lat: number;
-  lng: number;
-}
-
-export interface OrderItem {
-  dishId: string;
-  quantity: number;
-}
-
 export interface CreateOrderPayload {
   restaurantId: string;
-  items: OrderItem[];
-  deliveryLocation: DeliveryLocation | null;
-  googleMapsUrl: string | null;
-  comment: string | null;
+  deliveryLocation: DeliveryLocationInput;
+  items: OrderItemInput[];
+  customerNote?: string;
 }
 
 export interface OrderSuccessResponse {
-  orderId: string;
-  status: string;
-}
+   orderId: string;
+   status: string;
+   estimatedDelivery?: string; // ISO timestamp or human-readable string, depending on backend
+ }
 
 export interface ApiErrorResponse {
   message: string;
@@ -83,7 +97,7 @@ export type LoadingState = 'idle' | 'loading' | 'success' | 'error';
 
 export interface CheckoutFormState {
   deliveryMode: 'geolocation' | 'maps-link' | null;
-  location: DeliveryLocation | null;
+  location: DeliveryLocationInput | null;
   googleMapsUrl: string;
   comment: string;
   locationError: string | null;

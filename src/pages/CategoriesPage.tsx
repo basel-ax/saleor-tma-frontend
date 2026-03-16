@@ -9,10 +9,12 @@ import type { Category } from "../types";
 import PageHeader from "../components/PageHeader";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
+import { useLanguage } from "../context/LanguageContext";
 
 const CategoriesPage: FC = () => {
   const { restaurantId } = useParams<{ restaurantId: string }>();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   // ─── Fetch restaurant info (for header name) ────────────────────────────────
   const { data: restaurants } = useQuery({
@@ -94,8 +96,8 @@ const CategoriesPage: FC = () => {
   // ─── Main render ─────────────────────────────────────────────────────────────
   return (
     <div className="page">
-      {/* Header */}
-      <PageHeader title={restaurant?.name ?? "Menu"} showBack showCart />
+       {/* Header */}
+       <PageHeader title={restaurant?.name ?? t('categories_title')} showBack showCart />
 
       {/* Restaurant description (if any) */}
       {restaurant?.description && (
@@ -127,15 +129,15 @@ const CategoriesPage: FC = () => {
         </div>
       )}
 
-      {/* Section label */}
-      <div className="px-4 pb-2">
-        <p
-          className="text-xs font-semibold uppercase tracking-wider"
-          style={{ color: "var(--tg-theme-hint-color)" }}
-        >
-          Categories
-        </p>
-      </div>
+       {/* Section label */}
+       <div className="px-4 pb-2">
+         <p
+           className="text-xs font-semibold uppercase tracking-wider"
+           style={{ color: "var(--tg-theme-hint-color)" }}
+         >
+           {t('categories_section_label')}
+         </p>
+       </div>
 
       {/* Category list */}
       <div className="page-content pt-0 animate-slide-up">

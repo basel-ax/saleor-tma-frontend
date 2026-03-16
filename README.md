@@ -62,22 +62,22 @@ A fully-featured **Telegram Mini App** for food ordering from restaurants. Built
 Telegram Client (WebView)
         │
         ▼
-  Frontend (this repo)          ← Static SPA on Cloudflare Pages
-  React + Vite + Tailwind
+Frontend (this repo)          ← Static SPA on Cloudflare Pages
+React + Vite + Tailwind
         │
-        │  HTTPS  Authorization: tma <initData>
+        │  HTTPS  Telegram-Init-Data: <initData>
         ▼
-  Backend API (separate repo)   ← REST API
+Backend API (separate repo)   ← GraphQL API
         │
         ▼
-  Database / Business Logic
+Database / Business Logic
 ```
 
 The frontend is **entirely static**. It:
 1. Reads Telegram launch params via `window.Telegram.WebApp` (injected by the CDN script)
-2. Forwards `initData` to the backend as an `Authorization: tma <initData>` header on every request
+2. Forwards `initData` to the backend as a `Telegram-Init-Data: <initData>` header on every request
 3. Manages cart state locally in Zustand (persisted to `localStorage`)
-4. Submits orders via `POST /orders` to the configured backend
+4. Communicates with the backend via GraphQL queries and mutations
 
 ---
 
@@ -151,7 +151,11 @@ cp .env.example .env.local
 Edit `.env.local`:
 
 ```env
+# For connecting to a remote backend (production/staging)
 VITE_BACKEND_BASE_URL=https://your-backend-api.com
+
+# For local development with a GraphQL server
+# VITE_BACKEND_BASE_URL=http://localhost:4000/graphql
 ```
 
 ### Run locally
@@ -259,22 +263,27 @@ npx wrangler pages deploy dist --project-name=saleor-tma-frontend
 
 ## Backend Integration
 
-The frontend expects a REST API at `VITE_BACKEND_BASE_URL`. All requests include:
+The frontend communicates with a GraphQL API at `VITE_BACKEND_BASE_URL`. All requests include:
 
 ```
-Authorization: tma <Telegram initData string>
+Telegram-Init-Data: <Telegram initData string>
 ```
 
-### Required Endpoints
+### Required GraphQL Operations
 
-| Method | Path | Description |
-|---|---|---|
-| `GET` | `/restaurants` | List all restaurants |
-| `GET` | `/restaurants/:id/categories` | List categories for a restaurant |
-| `GET` | `/restaurants/:id/categories/:id/dishes` | List dishes in a category |
-| `POST` | `/orders` | Create an order |
+The frontend uses the following GraphQL queries and mutations:
 
-### POST /orders — Request Body
+- `GetRestaurants` - List all restaurants
+- `GetCategories` - List categories for a restaurant
+- `GetDishes` - List dishes in a category
+- `GetCart` - Get current cart
+- `AddToCart` - Add item to cart
+- `UpdateCartItem` - Update cart item quantity
+- `RemoveCartItem` - Remove item from cart
+- `ClearCart` - Clear the entire cart
+- `PlaceOrder` - Create an order
+
+### PlaceOrder Input Structure
 
 **With geolocation:**
 ```json
@@ -301,11 +310,11 @@ Authorization: tma <Telegram initData string>
 }
 ```
 
-### POST /orders — Response
+### PlaceOrder Response
 
 **Success (2xx):**
 ```json
-{ "orderId": "order_abc123", "status": "created" }
+{ "orderId": "order_abc123", "status": "created", "estimatedDelivery": "2026-03-16T20:30:00Z" }
 ```
 
 **Error (4xx/5xx):**
@@ -318,6 +327,206 @@ Authorization: tma <Telegram initData string>
 The backend must allow CORS from your Cloudflare Pages domain. For local dev, also allow `http://localhost:5173`.
 
 ---
+
+## Local Testing with GraphQL
+
+To test the frontend with a local GraphQL backend, follow these steps:
+
+### 1. Set up a Local GraphQL Server
+
+You'll need a GraphQL server that implements the schema expected by the frontend. The schema includes:
+
+**Queries:**
+- `restaurants`: Returns list of restaurants
+- `categories(restaurantId: ID!)`: Returns categories for a restaurant
+- `dishes(restaurantId: ID!, categoryId: ID!)`: Returns dishes in a category
+- `cart`: Returns current cart or null
+
+**Mutations:**
+- `addToCart(input: AddToCartInput!)`: Adds item to cart
+- `updateCartItem(input: UpdateCartItemInput!)`: Updates cart item quantity
+- `removeCartItem(input: RemoveCartItemInput!)`: Removes item from cart
+- `clearCart()`: Clears the entire cart
+- `placeOrder(input: PlaceOrderInput!)`: Creates an order
+
+#### Recommended GraphQL Server Libraries
+
+For quick setup, consider these libraries:
+- **Apollo Server**: `npm install @apollo/server graphql`
+- **GraphQL Yoga**: `npm install graphql-yoga`
+- **Express GraphQL**: `npm install express express-graphql graphql`
+
+### 2. Configure Environment Variables
+
+Create a `.env.local` file with your local GraphQL endpoint:
+
+```env
+# For local development with a GraphQL server
+VITE_BACKEND_BASE_URL=http://localhost:4000/graphql
+
+# Optional: Provide a mock initData string for testing specific users
+# VITE_DEV_INIT_DATA=query_id=test&user=%7B%22id%22%3A0%2C%22first_name%22%3A%22Test%22%2C%22username%22%3A%22testuser%22%7D&auth_date=1700000000&hash=test
+```
+
+### 3. Run the Development Server
+
+```bash
+npm install
+npm run dev
+```
+
+The frontend will be available at `http://localhost:5173` and will communicate with your local GraphQL server.
+
+### 4. Testing in Browser (Outside Telegram)
+
+The app includes a mock Telegram environment in `src/mockEnv.ts` that allows testing outside Telegram:
+
+- When `window.Telegram.WebApp` is not present, a lightweight mock is injected
+- Telegram CSS theme variables are applied to `:root` for proper styling
+- The mock provides basic WebApp functionality like `ready()`, `expand()`, etc.
+
+This means you can test all functionality in a regular browser at `http://localhost:5173`.
+
+#### Test User Pattern
+
+For automated testing, you can use the test user pattern with ID 0:
+- Set `VITE_DEV_INIT_DATA` in your `.env.local` to simulate a test user
+- The mock environment in `src/mockEnv.ts` uses user ID 0 by default
+- Your GraphQL backend should handle user ID 0 as a test/user development account
+
+### 5. Testing Inside Telegram (Optional)
+ 
+For testing inside Telegram:
+ 
+1. Expose your local dev server via ngrok:
+    ```bash
+    ngrok http --url your-name.ngrok-free.dev 5173
+    ```
+ 
+2. Set the Mini App URL in BotFather to `https://your-name.ngrok-free.dev`
+ 
+3. Open the app in Telegram to test with the real WebView
+ 
+> 💡 For more information about Telegram's test environment, see the [official documentation](https://core.telegram.org/bots/webapps#using-bots-in-the-test-environment).
+
+### 6. Sample GraphQL Schema
+
+Here's a minimal schema you can implement for testing:
+
+```graphql
+type Query {
+  restaurants: [Restaurant!]!
+  categories(restaurantId: ID!): [Category!]!
+  dishes(restaurantId: ID!, categoryId: ID!): [Dish!]!
+  cart: Cart
+}
+
+type Mutation {
+  addToCart(input: AddToCartInput!): Cart!
+  updateCartItem(input: UpdateCartItemInput!): Cart!
+  removeCartItem(input: RemoveCartItemInput!): Cart!
+  clearCart(): Cart
+  placeOrder(input: PlaceOrderInput!): OrderSuccessResponse!
+}
+
+type Restaurant {
+  id: ID!
+  name: String!
+  description: String
+  imageUrl: String
+  tags: [String!]
+}
+
+type Category {
+  id: ID!
+  restaurantId: ID!
+  name: String!
+  description: String
+  imageUrl: String
+}
+
+type Dish {
+  id: ID!
+  restaurantId: ID!
+  categoryId: ID!
+  name: String!
+  description: String!
+  imageUrl: String
+  price: Float!
+  currency: String!
+}
+
+type Cart {
+  id: ID!
+  restaurantId: ID!
+  restaurantName: String!
+  items: [CartItem!]!
+  updatedAt: String!
+}
+
+type CartItem {
+  dishId: ID!
+  quantity: Int!
+  name: String!
+  price: Float!
+  currency: String!
+  imageUrl: String
+  description: String
+}
+
+type OrderSuccessResponse {
+  orderId: String!
+  status: String!
+  estimatedDelivery: String
+}
+
+input AddToCartInput {
+  dishId: ID!
+  quantity: Int!
+  name: String!
+  price: Float!
+  currency: String!
+  restaurantId: ID!
+}
+
+input UpdateCartItemInput {
+  dishId: ID!
+  quantity: Int!
+}
+
+input RemoveCartItemInput {
+  dishId: ID!
+}
+
+input PlaceOrderInput {
+  restaurantId: ID!
+  items: [OrderItemInput!]!
+  deliveryLocation: LocationInput
+  googleMapsUrl: String
+  comment: String
+}
+
+input OrderItemInput {
+  dishId: ID!
+  quantity: Int!
+}
+
+input LocationInput {
+  lat: Float!
+  lng: Float!
+}
+```
+
+This setup allows you to develop and test the frontend locally with a GraphQL backend before deploying to production.
+
+### 7. Environment Variable Handling
+
+The frontend automatically handles environment variables:
+- In development (`npm run dev`), it loads variables from `.env.local`
+- In preview builds, it uses variables from `.env.local` or system environment
+- In production builds, variables are baked into the bundle at build time
+
+Never commit `.env.local` to version control as it may contain sensitive information.
 
 ## Telegram Bot Setup
 

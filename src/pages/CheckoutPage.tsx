@@ -6,29 +6,24 @@ import { useState, useCallback, type FC } from "react";
 import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
 import { createOrder } from "../api";
-import type { DeliveryLocation } from "../types";
+import type { DeliveryLocationInput, OrderItemInput, CartItem } from "../types";
 import PageHeader from "../components/PageHeader";
 import EmptyState from "../components/EmptyState";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { useLanguage } from "../context/LanguageContext";
 
 type DeliveryMode = "geolocation" | "maps-link" | null;
 
-const GOOGLE_MAPS_URL_REGEX =
-  /^https?:\/\/(www\.)?(google\.[a-z.]+\/maps|maps\.google\.[a-z.]+|goo\.gl\/maps|maps\.app\.goo\.gl)\S*/i;
-
-function isValidGoogleMapsUrl(url: string): boolean {
-  return GOOGLE_MAPS_URL_REGEX.test(url.trim());
-}
-
-export const CheckoutPage: FC = () => {
+const CheckoutPage: FC = () => {
   const navigate = useNavigate();
   const cart = useCartStore((s) => s.cart);
-  const totalPrice = useCartStore((s) => s.totalPrice());
   const clearCart = useCartStore((s) => s.clearCart);
+  const totalPrice = useCartStore((s) => s.totalPrice());
+  const { t } = useLanguage();
 
   // ─── Form state ─────────────────────────────────────────────────────────────
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>(null);
-  const [location, setLocation] = useState<DeliveryLocation | null>(null);
+  const [location, setLocation] = useState<DeliveryLocationInput | null>(null);
   const [googleMapsUrl, setGoogleMapsUrl] = useState("");
   const [comment, setComment] = useState("");
 
@@ -39,7 +34,26 @@ export const CheckoutPage: FC = () => {
   const [submitLoading, setSubmitLoading] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const currency = cart?.items[0]?.currency ?? "USD";
+  // Early return if no cart
+  if (!cart || cart.items.length === 0) {
+    return (
+      <div className="page">
+        <PageHeader title="Checkout" showBack />
+        <EmptyState
+          icon="🛒"
+          title="Your cart is empty"
+          description="Add items to your cart before checking out."
+          action={
+            <button className="tg-btn" onClick={() => navigate("/")}>
+              Browse Restaurants
+            </button>
+          }
+        />
+      </div>
+    );
+  }
+
+  const currency = cart.items[0]?.currency ?? "USD";
   const formatPrice = (amount: number) =>
     new Intl.NumberFormat("en-US", {
       style: "currency",
@@ -47,6 +61,49 @@ export const CheckoutPage: FC = () => {
       minimumFractionDigits: 0,
       maximumFractionDigits: 2,
     }).format(amount);
+
+  // Extract coordinates from Google Maps URL
+  const extractCoordinatesFromMapsUrl = (url: string): { latitude: number; longitude: number } | null => {
+    try {
+      // Handle common Google Maps URL formats
+      const urlObj = new URL(url);
+      
+      // Pattern 1: https://maps.google.com/?q=latitude,longitude
+      if (urlObj.hostname.includes('google.com') || urlObj.hostname.includes('maps.google.com')) {
+        const query = urlObj.searchParams.get('q');
+        if (query) {
+          const coords = query.split(',').map(Number);
+          if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+            return { latitude: coords[0], longitude: coords[1] };
+          }
+        }
+      }
+      
+      // Pattern 2: https://www.google.com/maps/search/latitude,longitude
+      if (urlObj.pathname.startsWith('/maps/search/')) {
+        const query = urlObj.pathname.substring(15); // Remove '/maps/search/'
+        const coords = query.split(',').map(Number);
+        if (coords.length === 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+          return { latitude: coords[0], longitude: coords[1] };
+        }
+      }
+      
+      // Pattern 3: Handle @latitude,longitude in path
+      if (urlObj.pathname.includes('@')) {
+        const atIndex = urlObj.pathname.indexOf('@');
+        const afterAt = urlObj.pathname.substring(atIndex + 1);
+        const coordPart = afterAt.split('/')[0]; // Get part before first slash
+        const coords = coordPart.split(',').map(Number);
+        if (coords.length >= 2 && !isNaN(coords[0]) && !isNaN(coords[1])) {
+          return { latitude: coords[0], longitude: coords[1] };
+        }
+      }
+      
+      return null;
+    } catch (e) {
+      return null;
+    }
+  };
 
   // ─── Geolocation ─────────────────────────────────────────────────────────────
   const handleRequestGeolocation = useCallback(() => {
@@ -63,9 +120,10 @@ export const CheckoutPage: FC = () => {
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const loc: DeliveryLocation = {
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
+        const loc: DeliveryLocationInput = {
+          address: "Current Location", // Default address for geolocation
+          latitude: position.coords.latitude,
+          longitude: position.coords.longitude,
         };
         setLocation(loc);
         setDeliveryMode("geolocation");
@@ -110,15 +168,22 @@ export const CheckoutPage: FC = () => {
   // ─── Maps link handler ────────────────────────────────────────────────────────
   const handleMapsUrlChange = (url: string) => {
     setGoogleMapsUrl(url);
-    if (url.trim() && !isValidGoogleMapsUrl(url)) {
-      setMapsUrlError("Please enter a valid Google Maps link.");
+    const coords = extractCoordinatesFromMapsUrl(url);
+    if (url.trim() && !coords) {
+      setMapsUrlError("Please enter a valid Google Maps link with coordinates.");
     } else {
       setMapsUrlError(null);
-    }
-    if (url.trim()) {
-      setDeliveryMode("maps-link");
-    } else {
-      setDeliveryMode(null);
+      if (coords) {
+        setLocation({
+          address: "Location from Google Maps", // Default address for maps link
+          latitude: coords.latitude,
+          longitude: coords.longitude,
+        });
+        setDeliveryMode("maps-link");
+      } else {
+        setLocation(null);
+        setDeliveryMode(null);
+      }
     }
   };
 
@@ -128,7 +193,7 @@ export const CheckoutPage: FC = () => {
     deliveryMode === "geolocation"
       ? location !== null
       : deliveryMode === "maps-link"
-        ? isValidGoogleMapsUrl(googleMapsUrl)
+        ? location !== null
         : false;
 
   // ─── Submit ───────────────────────────────────────────────────────────────────
@@ -138,15 +203,18 @@ export const CheckoutPage: FC = () => {
     setSubmitLoading(true);
     setSubmitError(null);
 
+    // Prepare order items with notes (empty for now)
+    const orderItems: OrderItemInput[] = cart.items.map((item) => ({
+      dishId: item.dishId,
+      quantity: item.quantity,
+      notes: "", // Notes could be added as a UI field in the future
+    }));
+
     const payload = {
       restaurantId: cart.restaurantId,
-      items: cart.items.map((item) => ({
-        dishId: item.dishId,
-        quantity: item.quantity,
-      })),
-      deliveryLocation: deliveryMode === "geolocation" ? location : null,
-      googleMapsUrl: deliveryMode === "maps-link" ? googleMapsUrl.trim() : null,
-      comment: comment.trim() || null,
+      items: orderItems,
+      deliveryLocation: location!, // Non-null due to isFormValid check
+      customerNote: comment.trim() || undefined,
     };
 
     console.log("checkout_submit", {
@@ -179,45 +247,25 @@ export const CheckoutPage: FC = () => {
     isFormValid,
     deliveryMode,
     location,
-    googleMapsUrl,
     comment,
     clearCart,
     navigate,
   ]);
 
-  // ─── Guard: no cart ───────────────────────────────────────────────────────────
-  if (!cart || cart.items.length === 0) {
-    return (
-      <div className="page">
-        <PageHeader title="Checkout" showBack />
-        <EmptyState
-          icon="🛒"
-          title="Your cart is empty"
-          description="Add items to your cart before checking out."
-          action={
-            <button className="tg-btn" onClick={() => navigate("/")}>
-              Browse Restaurants
-            </button>
-          }
-        />
-      </div>
-    );
-  }
-
   return (
     <div className="page">
-      {/* Header */}
-      <PageHeader title="Checkout" showBack />
+       {/* Header */}
+       <PageHeader title={t('checkout_title')} showBack />
 
       <div className="page-content">
-        {/* ── Order summary ── */}
-        <section className="mb-4">
-          <h2
-            className="text-xs font-semibold uppercase tracking-wider mb-2 px-1"
-            style={{ color: "var(--tg-theme-hint-color)" }}
-          >
-            Your Order
-          </h2>
+         {/* ── Order summary ── */}
+         <section className="mb-4">
+           <h2
+             className="text-xs font-semibold uppercase tracking-wider mb-2 px-1"
+             style={{ color: "var(--tg-theme-hint-color)" }}
+           >
+             {t('order_summary')}
+           </h2>
           <div
             className="rounded-tg overflow-hidden"
             style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
@@ -238,7 +286,7 @@ export const CheckoutPage: FC = () => {
               </div>
 
               {/* Items */}
-              {cart.items.map((item) => (
+              {cart.items.map((item: CartItem) => (
                 <div
                   key={item.dishId}
                   className="flex items-center justify-between gap-2"
@@ -283,86 +331,86 @@ export const CheckoutPage: FC = () => {
           </div>
         </section>
 
-        {/* ── Delivery Location ── */}
-        <section className="mb-4">
-          <h2
-            className="text-xs font-semibold uppercase tracking-wider mb-2 px-1"
-            style={{ color: "var(--tg-theme-hint-color)" }}
-          >
-            Delivery Location{" "}
-            <span style={{ color: "var(--tg-theme-destructive-text-color)" }}>
-              *
-            </span>
-          </h2>
+         {/* ── Delivery Location ── */}
+         <section className="mb-4">
+           <h2
+             className="text-xs font-semibold uppercase tracking-wider mb-2 px-1"
+             style={{ color: "var(--tg-theme-hint-color)" }}
+           >
+             {t('delivery_location')}{" "}
+             <span style={{ color: "var(--tg-theme-destructive-text-color)" }}>
+               {t('delivery_location_required')}
+             </span>
+           </h2>
 
           <div
             className="rounded-tg overflow-hidden"
             style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
           >
-            {/* ── Option 1: Geolocation ── */}
-            <div
-              className="p-4 border-b"
-              style={{ borderColor: "var(--tg-theme-bg-color)" }}
-            >
-              <div className="flex items-start gap-3 mb-3">
-                <div
-                  className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-                  style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-                >
-                  📍
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p
-                    className="text-sm font-semibold"
-                    style={{ color: "var(--tg-theme-text-color)" }}
-                  >
-                    Use my current location
-                  </p>
-                  <p
-                    className="text-xs mt-0.5"
-                    style={{ color: "var(--tg-theme-hint-color)" }}
-                  >
-                    Automatically detect your GPS coordinates
-                  </p>
-                </div>
-              </div>
+               {/* ── Option 1: Geolocation ── */}
+               <div
+                 className="p-4 border-b"
+                 style={{ borderColor: "var(--tg-theme-bg-color)" }}
+               >
+                 <div className="flex items-start gap-3 mb-3">
+                   <div
+                     className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-lg"
+                     style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
+                   >
+                     📍
+                   </div>
+                   <div className="flex-1 min-w-0">
+                     <p
+                       className="text-sm font-semibold"
+                       style={{ color: "var(--tg-theme-text-color)" }}
+                     >
+                       {t('use_my_location')}
+                     </p>
+                     <p
+                       className="text-xs mt-0.5"
+                       style={{ color: "var(--tg-theme-hint-color)" }}
+                     >
+                       {t('use_my_location_hint')}
+                     </p>
+                   </div>
+                 </div>
 
-              {/* Geolocation status */}
-              {deliveryMode === "geolocation" && location && (
-                <div
-                  className="flex items-center gap-2 px-3 py-2 rounded-xl mb-3"
-                  style={{ backgroundColor: "rgba(52, 199, 89, 0.12)" }}
-                >
-                  <span className="text-sm">✅</span>
-                  <div>
-                    <p
-                      className="text-xs font-semibold"
-                      style={{ color: "#34c759" }}
-                    >
-                      Location detected
-                    </p>
-                    <p
-                      className="text-xs font-mono"
-                      style={{ color: "var(--tg-theme-hint-color)" }}
-                    >
-                      {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      setLocation(null);
-                      setDeliveryMode(null);
-                    }}
-                    className="ml-auto text-xs px-2 py-1 rounded-lg"
-                    style={{
-                      backgroundColor: "var(--tg-theme-secondary-bg-color)",
-                      color: "var(--tg-theme-hint-color)",
-                    }}
-                  >
-                    Clear
-                  </button>
-                </div>
-              )}
+               {/* Geolocation status */}
+               {deliveryMode === "geolocation" && location && (
+                 <div
+                   className="flex items-center gap-2 px-3 py-2 rounded-xl mb-3"
+                   style={{ backgroundColor: "rgba(52, 199, 89, 0.12)" }}
+                 >
+                   <span className="text-sm">✅</span>
+                   <div>
+                     <p
+                       className="text-xs font-semibold"
+                       style={{ color: "#34c759" }}
+                     >
+                       {t('location_detected')}
+                     </p>
+                     <p
+                       className="text-xs font-mono"
+                       style={{ color: "var(--tg-theme-hint-color)" }}
+                     >
+                       {location.latitude.toFixed(6)}, {location.longitude.toFixed(6)}
+                     </p>
+                   </div>
+                   <button
+                     onClick={() => {
+                       setLocation(null);
+                       setDeliveryMode(null);
+                     }}
+                     className="ml-auto text-xs px-2 py-1 rounded-lg"
+                     style={{
+                       backgroundColor: "var(--tg-theme-secondary-bg-color)",
+                       color: "var(--tg-theme-hint-color)",
+                     }}
+                   >
+                     {t('clear')}
+                   </button>
+                 </div>
+               )}
 
               {geoError && (
                 <div
@@ -426,87 +474,87 @@ export const CheckoutPage: FC = () => {
               />
             </div>
 
-            {/* ── Option 2: Google Maps link ── */}
-            <div className="p-4">
-              <div className="flex items-start gap-3 mb-3">
-                <div
-                  className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-                  style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-                >
-                  🗺️
-                </div>
-                <div className="flex-1 min-w-0">
-                  <p
-                    className="text-sm font-semibold"
-                    style={{ color: "var(--tg-theme-text-color)" }}
-                  >
-                    Paste a Google Maps link
-                  </p>
-                  <p
-                    className="text-xs mt-0.5"
-                    style={{ color: "var(--tg-theme-hint-color)" }}
-                  >
-                    Share the location from the Google Maps app
-                  </p>
-                </div>
-              </div>
+               {/* ── Option 2: Google Maps link ── */}
+               <div className="p-4">
+                 <div className="flex items-start gap-3 mb-3">
+                   <div
+                     className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-lg"
+                     style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
+                   >
+                     🗺️
+                   </div>
+                   <div className="flex-1 min-w-0">
+                     <p
+                       className="text-sm font-semibold"
+                       style={{ color: "var(--tg-theme-text-color)" }}
+                     >
+                       {t('paste_google_maps_link')}
+                     </p>
+                     <p
+                       className="text-xs mt-0.5"
+                       style={{ color: "var(--tg-theme-hint-color)" }}
+                     >
+                       {t('paste_google_maps_link_hint')}
+                     </p>
+                   </div>
+                 </div>
 
-              <div
-                className={`flex items-center gap-2 rounded-xl px-3 h-11 border transition-colors ${
-                  mapsUrlError
-                    ? "border-[var(--tg-theme-destructive-text-color)]"
-                    : deliveryMode === "maps-link" &&
-                        !mapsUrlError &&
-                        googleMapsUrl
-                      ? "border-[#34c759]"
-                      : "border-transparent"
-                }`}
-                style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-              >
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--tg-theme-hint-color)"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="flex-shrink-0"
-                  aria-hidden="true"
-                >
-                  <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
-                  <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
-                </svg>
-                <input
-                  type="url"
-                  placeholder="https://maps.google.com/?q=..."
-                  value={googleMapsUrl}
-                  onChange={(e) => handleMapsUrlChange(e.target.value)}
-                  className="flex-1 bg-transparent text-sm outline-none"
-                  style={{ color: "var(--tg-theme-text-color)" }}
-                  aria-label="Google Maps URL"
-                  aria-describedby={mapsUrlError ? "maps-url-error" : undefined}
-                  aria-invalid={!!mapsUrlError}
-                />
-                {googleMapsUrl && (
-                  <button
-                    onClick={() => {
-                      setGoogleMapsUrl("");
-                      setMapsUrlError(null);
-                      if (deliveryMode === "maps-link") setDeliveryMode(null);
-                    }}
-                    aria-label="Clear URL"
-                    className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold"
-                    style={{
-                      backgroundColor: "var(--tg-theme-hint-color)",
-                      color: "var(--tg-theme-bg-color)",
-                    }}
-                  >
-                    ×
-                  </button>
-                )}
-              </div>
+               <div
+                 className={`flex items-center gap-2 rounded-xl px-3 h-11 border transition-colors ${
+                   mapsUrlError
+                     ? "border-[var(--tg-theme-destructive-text-color)]"
+                     : deliveryMode === "maps-link" &&
+                       !mapsUrlError &&
+                       googleMapsUrl
+                     ? "border-[#34c759]"
+                     : "border-transparent"
+                 }`}
+                 style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
+               >
+                 <svg
+                   width="16"
+                   height="16"
+                   viewBox="0 0 24 24"
+                   fill="none"
+                   stroke="var(--tg-theme-hint-color)"
+                   strokeWidth="2"
+                   strokeLinecap="round"
+                   strokeLinejoin="round"
+                   className="flex-shrink-0"
+                   aria-hidden="true"
+                 >
+                   <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+                   <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+                 </svg>
+                 <input
+                   type="url"
+                   placeholder={t('paste_google_maps_link')}
+                   value={googleMapsUrl}
+                   onChange={(e) => handleMapsUrlChange(e.target.value)}
+                   className="flex-1 bg-transparent text-sm outline-none"
+                   style={{ color: "var(--tg-theme-text-color)" }}
+                   aria-label="Google Maps URL"
+                   aria-describedby={mapsUrlError ? "maps-url-error" : undefined}
+                   aria-invalid={!!mapsUrlError}
+                 />
+                 {googleMapsUrl && (
+                   <button
+                     onClick={() => {
+                       setGoogleMapsUrl("");
+                       setMapsUrlError(null);
+                       if (deliveryMode === "maps-link") setDeliveryMode(null);
+                     }}
+                     aria-label="Clear URL"
+                     className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold"
+                     style={{
+                       backgroundColor: "var(--tg-theme-hint-color)",
+                       color: "var(--tg-theme-bg-color)",
+                     }}
+                   >
+                     ×
+                   </button>
+                 )}
+               </div>
 
               {mapsUrlError && (
                 <p

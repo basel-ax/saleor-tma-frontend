@@ -4,9 +4,11 @@ import { useCartStore } from "../store/cartStore";
 import PageHeader from "../components/PageHeader";
 import QuantityStepper from "../components/QuantityStepper";
 import EmptyState from "../components/EmptyState";
+import { useLanguage } from "../context/LanguageContext";
 
 const CartPage: FC = () => {
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const cart = useCartStore((s) => s.cart);
   const totalItems = useCartStore((s) => s.totalItems());
@@ -40,51 +42,51 @@ const CartPage: FC = () => {
     window.Telegram?.WebApp?.HapticFeedback?.notificationOccurred("warning");
   };
 
-  // ─── Empty cart ──────────────────────────────────────────────────────────────
-  if (!cart || cart.items.length === 0) {
-    return (
-      <div className="page">
-        <PageHeader title="Cart" showBack />
-        <EmptyState
-          icon="🛒"
-          title="Your cart is empty"
-          description="Add some dishes from a restaurant to get started."
-          action={
-            <button className="tg-btn" onClick={() => navigate("/")}>
-              Browse Restaurants
-            </button>
-          }
-        />
-      </div>
-    );
-  }
+   // ─── Empty cart ──────────────────────────────────────────────────────────────
+   if (!cart || cart.items.length === 0) {
+     return (
+       <div className="page">
+         <PageHeader title={t('cart_title')} showBack />
+         <EmptyState
+           icon="🛒"
+           title={t('cart_empty_title')}
+           description={t('cart_empty_description')}
+           action={
+             <button className="tg-btn" onClick={() => navigate("/")}>
+               {t('browse_restaurants')}
+             </button>
+           }
+         />
+       </div>
+     );
+   }
 
   return (
     <div className="page">
-      {/* Header */}
-      <PageHeader title="Cart" showBack />
+       {/* Header */}
+       <PageHeader title={t('cart_title')} showBack />
 
-      {/* Restaurant label */}
-      <div
-        className="mx-4 mb-3 px-3 py-2 rounded-tg flex items-center gap-2"
-        style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
-      >
-        <span className="text-lg">🏪</span>
-        <div className="min-w-0">
-          <p
-            className="text-xs font-medium uppercase tracking-wider mb-0.5"
-            style={{ color: "var(--tg-theme-hint-color)" }}
-          >
-            Ordering from
-          </p>
-          <p
-            className="text-sm font-semibold truncate"
-            style={{ color: "var(--tg-theme-text-color)" }}
-          >
-            {cart.restaurantName}
-          </p>
-        </div>
-      </div>
+       {/* Restaurant label */}
+       <div
+         className="mx-4 mb-3 px-3 py-2 rounded-tg flex items-center gap-2"
+         style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+       >
+         <span className="text-lg">🏪</span>
+         <div className="min-w-0">
+           <p
+             className="text-xs font-medium uppercase tracking-wider mb-0.5"
+             style={{ color: "var(--tg-theme-hint-color)" }}
+           >
+             {t('ordering_from')}
+           </p>
+           <p
+             className="text-sm font-semibold truncate"
+             style={{ color: "var(--tg-theme-text-color)" }}
+           >
+             {cart.restaurantName}
+           </p>
+         </div>
+       </div>
 
       {/* Item list */}
       <div className="page-content pt-0">
@@ -213,18 +215,18 @@ const CartPage: FC = () => {
           ))}
         </div>
 
-        {/* Order summary */}
-        <div
-          className="mt-4 rounded-tg overflow-hidden"
-          style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
-        >
-          <div className="p-4 space-y-2.5">
-            <h3
-              className="text-sm font-semibold uppercase tracking-wider mb-3"
-              style={{ color: "var(--tg-theme-hint-color)" }}
-            >
-              Order Summary
-            </h3>
+       {/* Order summary */}
+       <div
+         className="mt-4 rounded-tg overflow-hidden"
+         style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+       >
+         <div className="p-4 space-y-2.5">
+           <h3
+             className="text-sm font-semibold uppercase tracking-wider mb-3"
+             style={{ color: "var(--tg-theme-hint-color)" }}
+           >
+             {t('order_summary')}
+           </h3>
 
             {/* Item subtotals */}
             {cart.items.map((item) => (
@@ -270,13 +272,13 @@ const CartPage: FC = () => {
               </span>
             </div>
 
-            {/* Item count hint */}
-            <p
-              className="text-xs text-right"
-              style={{ color: "var(--tg-theme-hint-color)" }}
-            >
-              {totalItems} {totalItems === 1 ? "item" : "items"}
-            </p>
+             {/* Item count hint */}
+             <p
+               className="text-xs text-right"
+               style={{ color: "var(--tg-theme-hint-color)" }}
+             >
+               {totalItems} {totalItems === 1 ? t('item') : t('items')}
+             </p>
           </div>
         </div>
 
@@ -284,21 +286,21 @@ const CartPage: FC = () => {
         <div className="h-4" />
       </div>
 
-      {/* Checkout CTA */}
-      <div className="bottom-bar">
-        <button
-          onClick={() => navigate("/checkout")}
-          className="tg-btn flex items-center justify-between px-5"
-          aria-label="Proceed to checkout"
-        >
-          <span className="text-base font-semibold flex-1 text-center">
-            Proceed to Checkout
-          </span>
-          <span className="text-sm font-bold opacity-90 flex-shrink-0">
-            {formatPrice(totalPrice)}
-          </span>
-        </button>
-      </div>
+       {/* Checkout CTA */}
+       <div className="bottom-bar">
+         <button
+           onClick={() => navigate("/checkout")}
+           className="tg-btn flex items-center justify-between px-5"
+           aria-label="Proceed to checkout"
+         >
+           <span className="text-base font-semibold flex-1 text-center">
+             {t('proceed_to_checkout')}
+           </span>
+           <span className="text-sm font-bold opacity-90">
+             {formatPrice(totalPrice)}
+           </span>
+         </button>
+       </div>
     </div>
   );
 };
