@@ -1,0 +1,190 @@
+{
+  "version": 1,
+  "writtenAt": 1773816231215,
+  "toolAggregates": {
+    "question": {
+      "tool": "question",
+      "count": 1,
+      "successCount": 1,
+      "failureCount": 0,
+      "totalDuration": 4466
+    },
+    "read": {
+      "tool": "read",
+      "count": 7,
+      "successCount": 7,
+      "failureCount": 0,
+      "totalDuration": 3407
+    },
+    "glob": {
+      "tool": "glob",
+      "count": 15,
+      "successCount": 15,
+      "failureCount": 0,
+      "totalDuration": 153
+    },
+    "bash": {
+      "tool": "bash",
+      "count": 2,
+      "successCount": 2,
+      "failureCount": 0,
+      "totalDuration": 150
+    },
+    "write": {
+      "tool": "write",
+      "count": 3,
+      "successCount": 3,
+      "failureCount": 0,
+      "totalDuration": 28
+    }
+  },
+  "activeAgent": {
+    "ses_301869876ffe22WRRqR8Nu1P8z": "architect"
+  },
+  "delegationChains": {
+    "ses_301869876ffe22WRRqR8Nu1P8z": [
+      {
+        "from": "architect",
+        "to": "build",
+        "timestamp": 1773796177591
+      },
+      {
+        "from": "architect",
+        "to": "build",
+        "timestamp": 1773809787846
+      },
+      {
+        "from": "architect",
+        "to": "build",
+        "timestamp": 1773814856542
+      },
+      {
+        "from": "architect",
+        "to": "build",
+        "timestamp": 1773816182556
+      }
+    ]
+  },
+  "agentSessions": {
+    "ses_301869876ffe22WRRqR8Nu1P8z": {
+      "agentName": "architect",
+      "lastToolCallTime": 1773816231209,
+      "lastAgentEventTime": 1773816231209,
+      "delegationActive": false,
+      "activeInvocationId": 6,
+      "lastInvocationIdByAgent": {
+        "build": 6
+      },
+      "windows": {
+        "build:6": {
+          "id": 6,
+          "agentName": "build",
+          "startedAtMs": 1773816182556,
+          "toolCalls": 0,
+          "consecutiveErrors": 0,
+          "hardLimitHit": false,
+          "lastSuccessTimeMs": 1773816182556,
+          "recentToolCalls": [],
+          "warningIssued": false,
+          "warningReason": ""
+        },
+        "build:5": {
+          "id": 5,
+          "agentName": "build",
+          "startedAtMs": 1773814856542,
+          "toolCalls": 0,
+          "consecutiveErrors": 0,
+          "hardLimitHit": false,
+          "lastSuccessTimeMs": 1773814856542,
+          "recentToolCalls": [],
+          "warningIssued": false,
+          "warningReason": ""
+        },
+        "build:4": {
+          "id": 4,
+          "agentName": "build",
+          "startedAtMs": 1773809787846,
+          "toolCalls": 1,
+          "consecutiveErrors": 0,
+          "hardLimitHit": false,
+          "lastSuccessTimeMs": 1773809795549,
+          "recentToolCalls": [
+            {
+              "tool": "read",
+              "argsHash": 7809406659524940000,
+              "timestamp": 1773809795543
+            }
+          ],
+          "warningIssued": false,
+          "warningReason": ""
+        },
+        "build:3": {
+          "id": 3,
+          "agentName": "build",
+          "startedAtMs": 1773796177591,
+          "toolCalls": 0,
+          "consecutiveErrors": 0,
+          "hardLimitHit": false,
+          "lastSuccessTimeMs": 1773796177591,
+          "recentToolCalls": [],
+          "warningIssued": false,
+          "warningReason": ""
+        },
+        "build:2": {
+          "id": 2,
+          "agentName": "build",
+          "startedAtMs": 1773795979453,
+          "toolCalls": 0,
+          "consecutiveErrors": 0,
+          "hardLimitHit": false,
+          "lastSuccessTimeMs": 1773795979453,
+          "recentToolCalls": [],
+          "warningIssued": false,
+          "warningReason": ""
+        },
+        "build:1": {
+          "id": 1,
+          "agentName": "build",
+          "startedAtMs": 1773795895191,
+          "toolCalls": 1,
+          "consecutiveErrors": 0,
+          "hardLimitHit": false,
+          "lastSuccessTimeMs": 1773795908420,
+          "recentToolCalls": [
+            {
+              "tool": "question",
+              "argsHash": 5679010815922845000,
+              "timestamp": 1773795903954
+            }
+          ],
+          "warningIssued": false,
+          "warningReason": ""
+        }
+      },
+      "lastCompactionHint": 0,
+      "architectWriteCount": 3,
+      "lastCoderDelegationTaskId": null,
+      "currentTaskId": null,
+      "turboMode": false,
+      "gateLog": {},
+      "reviewerCallCount": {},
+      "lastGateFailure": null,
+      "partialGateWarningsIssuedForTask": [
+        "ses_301869876ffe22WRRqR8Nu1P8z:unknown"
+      ],
+      "selfFixAttempted": false,
+      "selfCodingWarnedAtCount": 2,
+      "catastrophicPhaseWarnings": [],
+      "lastPhaseCompleteTimestamp": 0,
+      "lastPhaseCompletePhase": 0,
+      "phaseAgentsDispatched": [
+        "build"
+      ],
+      "lastCompletedPhaseAgentsDispatched": [],
+      "qaSkipCount": 0,
+      "qaSkipTaskIds": [],
+      "taskWorkflowStates": {},
+      "scopeViolationDetected": false
+    }
+  }
+}
