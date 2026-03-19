@@ -233,6 +233,7 @@ Output:       dist/assets/index-abc123.js  (contains "https://api.example.com" l
 | Variable | Required | Example | Notes |
 |---|---|---|---|
 | `VITE_BACKEND_BASE_URL` | ✅ | `https://api.yourdomain.com` | No trailing slash |
+| `VITE_DEV_INIT_DATA` | No | `auth_date=...&user=...&hash=...` | URL-encoded Telegram init data. Optional — mock data is auto-generated if not set |
 | `NODE_VERSION` | Recommended | `18` | Ensures correct Node.js version |
 
 ### Per-Environment Configuration
@@ -248,6 +249,9 @@ You can set different backend URLs for each:
 Production  →  VITE_BACKEND_BASE_URL = https://api.yourdomain.com
 Preview     →  VITE_BACKEND_BASE_URL = https://staging-api.yourdomain.com
 ```
+
+> **Note:** `VITE_DEV_INIT_DATA` is typically only needed for local development. In production/preview
+> environments, the real Telegram init data is provided by the Telegram WebView.
 
 ---
 

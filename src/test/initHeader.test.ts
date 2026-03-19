@@ -14,12 +14,8 @@ describe('getTelegramInitHeader', () => {
     vi.resetModules();
     vi.clearAllMocks();
     
-    // Stub import.meta.env to a fresh object each time
-    vi.stubGlobal('import.meta.env', {
-      VITE_DEV_INIT_DATA: '',
-      DEV: true,
-      PROD: false,
-    });
+    // Set VITE_DEV_INIT_DATA to empty string for clean state (falsy)
+    vi.stubEnv('VITE_DEV_INIT_DATA', '');
     
     // Set up window.Telegram.WebApp mock
     if (!window.Telegram) {
@@ -33,11 +29,7 @@ describe('getTelegramInitHeader', () => {
 
   it('should return VITE_DEV_INIT_DATA when set', async () => {
     // Override env for this test
-    vi.stubGlobal('import.meta.env', {
-      VITE_DEV_INIT_DATA: 'test_dev_data',
-      DEV: true,
-      PROD: false,
-    });
+    vi.stubEnv('VITE_DEV_INIT_DATA', 'test_dev_data');
     
     // Re-import to pick up new env stub
     vi.resetModules();
@@ -48,7 +40,7 @@ describe('getTelegramInitHeader', () => {
   });
 
   it('should return window.Telegram.WebApp.initData when VITE_DEV_INIT_DATA is not set', async () => {
-    // VITE_DEV_INIT_DATA is already '' from beforeEach
+    // VITE_DEV_INIT_DATA is already '' from beforeEach (falsy, so falls back)
     vi.resetModules();
     const { getTelegramInitHeader } = await import('../api/index');
     
@@ -57,11 +49,7 @@ describe('getTelegramInitHeader', () => {
   });
 
   it('should return empty string when both sources are empty', async () => {
-    vi.stubGlobal('import.meta.env', {
-      VITE_DEV_INIT_DATA: '',
-      DEV: true,
-      PROD: false,
-    });
+    // VITE_DEV_INIT_DATA is already '' from beforeEach
     (window as any).Telegram.WebApp.initData = '';
     
     vi.resetModules();
@@ -75,11 +63,7 @@ describe('getTelegramInitHeader', () => {
     const rawData = 'query_id=test&user=testuser&auth_date=1700000000&hash=abc';
     (window as any).Telegram.WebApp.initData = rawData;
     
-    vi.stubGlobal('import.meta.env', {
-      VITE_DEV_INIT_DATA: '',
-      DEV: true,
-      PROD: false,
-    });
+    // VITE_DEV_INIT_DATA is already '' from beforeEach
     
     vi.resetModules();
     const { getTelegramInitHeader } = await import('../api/index');

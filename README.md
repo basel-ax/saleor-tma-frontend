@@ -115,6 +115,8 @@ saleor-tma-frontend/
 │   │   └── cartStore.ts    # Zustand cart store with localStorage persistence
 │   ├── types/
 │   │   └── index.ts        # TypeScript interfaces (Restaurant, Dish, Cart…)
+│   ├── utils/
+│   │   └── initData.ts     # Telegram init data utilities (mock generation, expiration check)
 │   ├── mockEnv.ts          # TMA mock environment (works in browser + Telegram)
 │   ├── App.tsx             # React Router setup + Telegram BackButton sync
 │   ├── main.tsx            # App entry point
@@ -191,6 +193,7 @@ All Vite env variables must be prefixed with `VITE_` to be available in the brow
 | Variable | Required | Description |
 |---|---|---|
 | `VITE_BACKEND_BASE_URL` | ✅ Yes | Base URL of the backend API (no trailing slash). Example: `https://api.example.com` |
+| `VITE_DEV_INIT_DATA` | No | URL-encoded Telegram init data string for local development. When not set, a mock init data with user ID 0 is automatically generated. Example: `auth_date=1700000000&user={"id":0}&hash=test` |
 
 Set these in the Cloudflare Pages dashboard under **Settings → Environment variables**. See the [deployment guide](docs/DEPLOY.md#environment-variables) for full details.
 
@@ -224,6 +227,32 @@ This means the app works in:
 No external TMA SDK packages are required. The `telegram-web-app.js` script is loaded
 synchronously in `index.html` before the React app boots, ensuring the real WebApp object
 is always available in Telegram.
+
+### Telegram Init Data
+
+All API requests include the Telegram init data in the `X-Telegram-Init-Data` header. This data:
+
+- **In Telegram**: Is automatically provided by `window.Telegram.WebApp.initData`
+- **In browser/development**: Falls back to:
+  1. The `VITE_DEV_INIT_DATA` environment variable (if set)
+  2. Auto-generated mock data via `generateMockInitData()` from `src/utils/initData.ts`
+
+The mock data uses:
+- `auth_date` with the current timestamp
+- A dummy `hash` value (valid for development only)
+- User ID `0` with test user info
+
+#### Development Mode Expiration Warning
+
+When running outside Telegram (browser mode), the app checks if the init data's `auth_date` is older than 24 hours and logs a warning to the console. This helps identify stale test data during development.
+
+#### API Header Format
+
+```
+X-Telegram-Init-Data: auth_date=1700000000&user={"id":0,"first_name":"Test"}&hash=test
+```
+
+The init data is passed URL-encoded, exactly as received from Telegram. The backend is responsible for validating the hash and checking the auth date.
 
 ---
 
@@ -364,9 +393,13 @@ Create a `.env.local` file with your local GraphQL endpoint:
 # For local development with a GraphQL server
 VITE_BACKEND_BASE_URL=http://localhost:4000/graphql
 
-# Optional: Provide a mock initData string for testing specific users
-# VITE_DEV_INIT_DATA=query_id=test&user=%7B%22id%22%3A0%2C%22first_name%22%3A%22Test%22%2C%22username%22%3A%22testuser%22%7D&auth_date=1700000000&hash=test
+# Optional: Provide a specific initData string for testing
+# Format: URL-encoded key=value pairs (auth_date, user JSON, hash)
+# VITE_DEV_INIT_DATA=auth_date=1700000000&user=%7B%22id%22%3A0%2C%22first_name%22%3A%22Test%22%7D&hash=test
 ```
+
+> **Note:** When `VITE_DEV_INIT_DATA` is not set, `mockEnv.ts` automatically generates
+> valid mock init data using `generateMockInitData()` from `src/utils/initData.ts`.
 
 ### 3. Run the Development Server
 
@@ -390,9 +423,9 @@ This means you can test all functionality in a regular browser at `http://localh
 #### Test User Pattern
 
 For automated testing, you can use the test user pattern with ID 0:
-- Set `VITE_DEV_INIT_DATA` in your `.env.local` to simulate a test user
 - The mock environment in `src/mockEnv.ts` uses user ID 0 by default
-- Your GraphQL backend should handle user ID 0 as a test/user development account
+- Your GraphQL backend should handle user ID 0 as a test/development account
+- Optionally set `VITE_DEV_INIT_DATA` to simulate different users or test specific auth dates
 
 ### 5. Testing Inside Telegram (Optional)
  
