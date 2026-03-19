@@ -164,15 +164,15 @@ import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
          >
            🍽️ Restaurants
          </h1>
-          <div className="flex items-center gap-2">
-            <CartBadge />
-            <LanguageSwitcher className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"></LanguageSwitcher>
-            <button
-              onClick={() => setSettingsOpen(true)}
-              aria-label="Settings"
-              className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"
-              style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
-            >
+            <div className="flex items-center gap-2">
+             <CartBadge />
+             <LanguageSwitcher className="flex-shrink-0"></LanguageSwitcher>
+             <button
+               onClick={() => setSettingsOpen(true)}
+               aria-label="Settings"
+               className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"
+               style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+             >
               <svg
                 width="18"
                 height="18"
@@ -192,114 +192,114 @@ import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
           </div>
        </div>
 
-      {/* Search */}
-      <div
-        className="px-4 pb-3 sticky top-[52px] z-30"
-        style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-      >
-        <div
-          className="flex items-center gap-2 rounded-xl px-3 h-11"
-          style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
-        >
-          <svg
-            width="16"
-            height="16"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="var(--tg-theme-hint-color)"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            aria-hidden="true"
-            className="flex-shrink-0"
-          >
-            <circle cx="11" cy="11" r="8" />
-            <line x1="21" y1="21" x2="16.65" y2="16.65" />
-          </svg>
-          <input
-            type="search"
-            placeholder="Search restaurants..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="flex-1 bg-transparent text-sm outline-none"
-            style={{ color: "var(--tg-theme-text-color)" }}
-            aria-label="Search restaurants"
+       {/* Search */}
+       <div
+         className="px-4 pb-3 sticky top-[52px] z-30"
+         style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
+       >
+         <div
+           className="flex items-center gap-2 rounded-xl px-3 h-11"
+           style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+         >
+           <svg
+             width="16"
+             height="16"
+             viewBox="0 0 24 24"
+             fill="none"
+             stroke="var(--tg-theme-hint-color)"
+             strokeWidth="2"
+             strokeLinecap="round"
+             strokeLinejoin="round"
+             aria-hidden="true"
+             className="flex-shrink-0"
+           >
+             <circle cx="11" cy="11" r="8" />
+             <line x1="21" y1="21" x2="16.65" y2="16.65" />
+           </svg>
+           <input
+             type="search"
+             placeholder="Search restaurants..."
+             value={searchQuery}
+             onChange={(e) => setSearchQuery(e.target.value)}
+             className="flex-1 bg-transparent text-sm outline-none"
+             style={{ color: "var(--tg-theme-text-color)" }}
+             aria-label="Search restaurants"
+           />
+           {searchQuery && (
+             <button
+               onClick={() => setSearchQuery("")}
+               aria-label="Clear search"
+               className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold"
+               style={{
+                 backgroundColor: "var(--tg-theme-hint-color)",
+                 color: "var(--tg-theme-secondary-bg-color)",
+               }}
+             >
+               ×
+             </button>
+           )}
+         </div>
+       </div>
+
+       {/* Restaurant list */}
+       <div className="page-content pt-0">
+         {filteredRestaurants.length === 0 ? (
+           searchQuery ? (
+             <EmptyState
+               icon="🔍"
+               title="No results found"
+               description={`No restaurants match "${searchQuery}". Try a different search term.`}
+               action={
+                 <button
+                   className="tg-btn tg-btn-secondary"
+                   onClick={() => setSearchQuery("")}
+                 >
+                   Clear Search
+                 </button>
+               }
+             />
+           ) : (
+             <EmptyState
+               icon="🏪"
+               title="No restaurants available"
+               description="Check back later for new restaurants in your area."
+               action={
+                 <button className="tg-btn" onClick={() => refetch()}>
+                   Refresh
+                 </button>
+               }
+             />
+           )
+         ) : (
+           <div className="flex flex-col gap-3 animate-slide-up">
+             {filteredRestaurants.map((restaurant) => (
+               <RestaurantCard
+                 key={restaurant.id}
+                 restaurant={restaurant}
+                 onClick={handleSelectRestaurant}
+               />
+             ))}
+           </div>
+         )}
+       </div>
+
+        {/* Cart reset confirmation modal */}
+        {pendingRestaurant && (
+          <CartResetConfirmModal
+            newRestaurantName={pendingRestaurant.name}
+            onConfirm={handleConfirmSwitch}
+            onCancel={handleCancelSwitch}
           />
-          {searchQuery && (
-            <button
-              onClick={() => setSearchQuery("")}
-              aria-label="Clear search"
-              className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold"
-              style={{
-                backgroundColor: "var(--tg-theme-hint-color)",
-                color: "var(--tg-theme-secondary-bg-color)",
-              }}
-            >
-              ×
-            </button>
-          )}
-        </div>
-      </div>
-
-      {/* Restaurant list */}
-      <div className="page-content pt-0">
-        {filteredRestaurants.length === 0 ? (
-          searchQuery ? (
-            <EmptyState
-              icon="🔍"
-              title="No results found"
-              description={`No restaurants match "${searchQuery}". Try a different search term.`}
-              action={
-                <button
-                  className="tg-btn tg-btn-secondary"
-                  onClick={() => setSearchQuery("")}
-                >
-                  Clear Search
-                </button>
-              }
-            />
-          ) : (
-            <EmptyState
-              icon="🏪"
-              title="No restaurants available"
-              description="Check back later for new restaurants in your area."
-              action={
-                <button className="tg-btn" onClick={() => refetch()}>
-                  Refresh
-                </button>
-              }
-            />
-          )
-        ) : (
-          <div className="flex flex-col gap-3 animate-slide-up">
-            {filteredRestaurants.map((restaurant) => (
-              <RestaurantCard
-                key={restaurant.id}
-                restaurant={restaurant}
-                onClick={handleSelectRestaurant}
-              />
-            ))}
-          </div>
         )}
+        
+        {/* Settings bottom sheet */}
+        <SettingsBottomSheet
+          isOpen={settingsOpen}
+          onClose={() => setSettingsOpen(false)}
+        />
       </div>
-
-       {/* Cart reset confirmation modal */}
-       {pendingRestaurant && (
-         <CartResetConfirmModal
-           newRestaurantName={pendingRestaurant.name}
-           onConfirm={handleConfirmSwitch}
-           onCancel={handleCancelSwitch}
-         />
-       )}
-       
-       {/* Settings bottom sheet */}
-       <SettingsBottomSheet
-         isOpen={settingsOpen}
-         onClose={() => setSettingsOpen(false)}
-       />
-     </div>
-   );
- };
+    );
+  };
 
 export { RestaurantsPage };
 export default RestaurantsPage;
