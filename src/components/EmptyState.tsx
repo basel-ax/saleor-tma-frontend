@@ -1,5 +1,4 @@
 import type { FC, ReactNode } from "react";
-import { useLanguage } from "../context/LanguageContext";
 
 interface EmptyStateProps {
   icon?: ReactNode;
@@ -10,18 +9,16 @@ interface EmptyStateProps {
 }
 
 export const EmptyState: FC<EmptyStateProps> = ({
-    icon,
-    title,
-    description,
-    action,
-    className = "",
-  }) => {
-    const { t } = useLanguage();
-    
-    // Use translations if provided titles/messages match default values from our pages
-    const localizedTitle = title;
-    const localizedDescription = description;
-    // Note: We don't translate the action as it's usually a button with its own translated text
+     icon,
+     title,
+     description,
+     action,
+     className = "",
+   }) => {
+     // Use translations if provided titles/messages match default values from our pages
+     const localizedTitle = title;
+     const localizedDescription = description;
+     // Note: We don't translate the action as it's usually a button with its own translated text
     
     return (
       <div

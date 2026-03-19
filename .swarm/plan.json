@@ -1,0 +1,75 @@
+{
+  "schema_version": "1.0.0",
+  "title": "Saleor TMA Frontend - Telegram Init Data Validation",
+  "swarm": "default",
+  "current_phase": 1,
+  "phases": [
+    {
+      "id": 1,
+      "name": "Telegram Init Data Validation Implementation",
+      "status": "in_progress",
+      "tasks": [
+        {
+          "id": "1.0",
+          "phase": 1,
+          "status": "completed",
+          "size": "small",
+          "description": "Set up Vitest testing framework and configuration",
+          "depends": [],
+          "acceptance": "Vitest is installed and configured, test script added to package.json, and a basic test passes",
+          "files_touched": []
+        },
+        {
+          "id": "1.1",
+          "phase": 1,
+          "status": "completed",
+          "size": "small",
+          "description": "Create utility function for generating URL-encoded Telegram init data with current auth_date",
+          "depends": [
+            "1.0"
+          ],
+          "acceptance": "Function generateMockInitData() in src/utils/initData.ts returns URL-encoded string with format 'auth_date=<timestamp>&user=<url-encoded-json>&hash=test' where auth_date is current timestamp",
+          "files_touched": []
+        },
+        {
+          "id": "1.2",
+          "phase": 1,
+          "status": "completed",
+          "size": "small",
+          "description": "Fix getTelegramInitHeader() in src/api/index.ts to return raw URL-encoded init data instead of JSON and add expiration warning (dev mode only)",
+          "depends": [
+            "1.1"
+          ],
+          "acceptance": "getTelegramInitHeader() returns window.Telegram.WebApp.initData directly when available, or VITE_DEV_INIT_DATA when set, and logs warning to console when auth_date older than 24 hours in development mode",
+          "files_touched": []
+        },
+        {
+          "id": "1.3",
+          "phase": 1,
+          "status": "in_progress",
+          "size": "small",
+          "description": "Modify mockEnv.ts to use utility function for generating mock init data when VITE_DEV_INIT_DATA is not set",
+          "depends": [
+            "1.1"
+          ],
+          "acceptance": "When VITE_DEV_INIT_DATA is not set, mockEnv.ts initData equals generateMockInitData() output from src/utils/initData.ts",
+          "files_touched": []
+        },
+        {
+          "id": "1.4",
+          "phase": 1,
+          "status": "pending",
+          "size": "medium",
+          "description": "Create automated tests for Telegram init data utility and header function",
+          "depends": [
+            "1.1",
+            "1.2"
+          ],
+          "acceptance": "Test file src/utils/__tests__/initData.test.ts verifies: (a) generateMockInitData() produces valid URL-encoded format with current auth_date, (b) getTelegramInitHeader() returns correct values for different scenarios, (c) expiration warning is logged when auth_date > 24 hours in development mode",
+          "files_touched": []
+        }
+      ]
+    }
+  ],
+  "migration_status": "native"
+}

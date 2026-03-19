@@ -1,6 +1,6 @@
 // ─── API Client (GraphQL) ───────────────────────────────────────────────────────
 // Backend GraphQL endpoint is configured via VITE_BACKEND_BASE_URL.
-// All requests include Telegram initData payload in a Telegram-Init-Data header.
+// All requests include Telegram initData payload in a X-Telegram-Init-Data header.
 
 import type {
    Restaurant,
@@ -19,25 +19,59 @@ type GraphQLResponse<D> = {
 const BASE_URL = (import.meta.env.VITE_BACKEND_BASE_URL as string) || '';
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
+function getWindowTelegramInitData(): string {
+   return (window as any).Telegram?.WebApp?.initData ?? '';
+}
 
-function getTelegramInitHeader(): string {
-   // Prefer the richer init data (initDataUnsafe.user) when available; fallback to initData.
-   // Always stringify to JSON so the backend can parse a structured payload.
-   const init = (window as any).Telegram?.WebApp?.initDataUnsafe?.user ??
-                (window as any).Telegram?.WebApp?.initData ?? {};
-   try {
-      return JSON.stringify(init);
-   } catch {
-      return '{}';
-   }
+export function getTelegramInitHeader(): string {
+      // Access import.meta.env at call time (not module eval time)
+      const env = (import.meta.env as Record<string, unknown>);
+      const devInitData = env['VITE_DEV_INIT_DATA'] as string | undefined;
+      
+      if (devInitData) {
+         checkInitDataExpiration(devInitData);
+         return devInitData;
+      }
+      
+      const initData = getWindowTelegramInitData();
+      if (initData) {
+         checkInitDataExpiration(initData);
+      }
+      return initData;
+  }
+
+// Check if init data has expired auth_date and log warning in development mode
+export function checkInitDataExpiration(initData: string): void {
+      // Only check in development mode - read env at call time
+      const env = (import.meta.env as Record<string, unknown>);
+      if (env['PROD'] === true) {
+         return;
+      }
+      
+      try {
+         const params = new URLSearchParams(initData);
+         const authDateStr = params.get('auth_date');
+         
+         if (authDateStr) {
+            const authDate = parseInt(authDateStr, 10);
+            const currentTime = Math.floor(Date.now() / 1000);
+            const twentyFourHours = 24 * 60 * 60; // 24 hours in seconds
+            
+            if (currentTime - authDate > twentyFourHours) {
+               console.warn(`Telegram init data expired, auth_date: ${authDateStr}, current: ${currentTime}`);
+            }
+         }
+      } catch (e) {
+         // Ignore parsing errors - invalid format will be handled by backend
+      }
 }
 
 function buildHeaders(): HeadersInit {
-   const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      'Telegram-Init-Data': getTelegramInitHeader(),
-   };
-   return headers;
+    const headers: Record<string, string> = {
+       'Content-Type': 'application/json',
+       'X-Telegram-Init-Data': getTelegramInitHeader(),
+    };
+    return headers;
 }
 
 async function requestGraphQL<T>(query: string, variables?: any): Promise<T> {

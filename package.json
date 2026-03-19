@@ -10,7 +10,8 @@
     "dev": "vite",
     "build": "tsc && vite build",
     "preview": "vite preview",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "test": "vitest"
   },
   "dependencies": {
     "@tanstack/react-query": "5.90.20",
@@ -20,14 +21,17 @@
     "zustand": "3.7.2"
   },
   "devDependencies": {
+    "@types/node": "^25.5.0",
     "@types/react": "18.3.21",
     "@types/react-dom": "18.3.7",
     "@vitejs/plugin-react": "^4.3.4",
     "autoprefixer": "10.4.21",
     "esbuild": "^0.25.1",
+    "jsdom": "^28.1.0",
     "postcss": "8.5.6",
     "tailwindcss": "3.4.17",
     "typescript": "5.8.3",
-    "vite": "^5.4.21"
+    "vite": "^5.4.21",
+    "vitest": "^4.1.0"
   }
 }
