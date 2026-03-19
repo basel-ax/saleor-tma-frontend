@@ -13,6 +13,7 @@ import CartResetConfirmModal from "../components/CartResetConfirmModal";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
 import CartBadge from "../components/CartBadge";
+import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
 
   const RestaurantsPage: FC = () => {
@@ -163,31 +164,32 @@ import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
          >
            🍽️ Restaurants
          </h1>
-         <div className="flex items-center gap-2">
-           <CartBadge />
-           <button
-             onClick={() => setSettingsOpen(true)}
-             aria-label="Settings"
-             className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"
-             style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
-           >
-             <svg
-               width="18"
-               height="18"
-               viewBox="0 0 24 24"
-               fill="none"
-               stroke="var(--tg-theme-text-color)"
-               strokeWidth="2"
-               strokeLinecap="round"
-               strokeLinejoin="round"
-               aria-hidden="true"
-             >
-               <circle cx="12" cy="12" r="1" />
-               <circle cx="12" cy="5" r="1" />
-               <circle cx="12" cy="19" r="1" />
-             </svg>
-           </button>
-         </div>
+          <div className="flex items-center gap-2">
+            <CartBadge />
+            <LanguageSwitcher className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"></LanguageSwitcher>
+            <button
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Settings"
+              className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"
+              style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--tg-theme-text-color)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="1" />
+                <circle cx="12" cy="5" r="1" />
+                <circle cx="12" cy="19" r="1" />
+              </svg>
+            </button>
+          </div>
        </div>
 
       {/* Search */}
