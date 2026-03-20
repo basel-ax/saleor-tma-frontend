@@ -1,18 +1,19 @@
 /* ─── Telegram Theme Variables (defaults — overridden by Telegram at runtime) ─ */
+/* Incorporating FoodOrderTMA design system colors while respecting Telegram theme */
 :root {
   --tg-theme-bg-color: #ffffff;
   --tg-theme-text-color: #000000;
   --tg-theme-hint-color: #999999;
   --tg-theme-link-color: #3390ec;
-  --tg-theme-button-color: #3390ec;
+  --tg-theme-button-color: #DC2626; /* Primary: Appetizing red */
   --tg-theme-button-text-color: #ffffff;
   --tg-theme-secondary-bg-color: #f0f0f0;
   --tg-theme-header-bg-color: #ffffff;
   --tg-theme-bottom-bar-bg-color: #f0f0f0;
-  --tg-theme-accent-text-color: #3390ec;
+  --tg-theme-accent-text-color: #CA8A04; /* CTA: Warm gold */
   --tg-theme-section-bg-color: #ffffff;
-  --tg-theme-section-header-text-color: #3390ec;
-  --tg-theme-subtitle-text-color: #999999;
+  --tg-theme-section-header-text-color: #DC2626; /* Primary: Appetizing red */
+  --tg-theme-subtitle-text-color: #450A0A; /* Text: Dark red */
   --tg-theme-destructive-text-color: #e53935;
 }
 
@@ -64,15 +65,20 @@ body {
 }
 
 /* ─── Typography ────────────────────────────────────────────────────────────── */
+/* Using Playfair Display SC for headings and Karla for body as per design system */
+
+@import url('https://fonts.googleapis.com/css2?family=Karla:wght@300;400;500;600;700&family=Playfair+Display+SC:wght@400;700&display=swap');
 
 h1, h2, h3, h4, h5, h6 {
   color: var(--tg-theme-text-color);
-  font-weight: 600;
+  font-family: 'Playfair Display SC', serif;
+  font-weight: 700;
   line-height: 1.25;
 }
 
 p {
   color: var(--tg-theme-text-color);
+  font-family: 'Karla', sans-serif;
   line-height: 1.5;
 }
 

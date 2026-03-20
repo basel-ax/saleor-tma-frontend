@@ -50,3 +50,4 @@ lerna-debug.log*
 # Cloudflare / Wrangler
 .wrangler/
 .dev.vars
+.opencode/skills/ui-ux-pro-max/scripts/__pycache__/

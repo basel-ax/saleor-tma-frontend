@@ -22,9 +22,9 @@ export const QuantityStepper: FC<QuantityStepperProps> = ({
   const isSmall = size === "sm";
 
   const btnBase = `
-    flex items-center justify-center rounded-full font-bold
-    transition-all duration-150 active:scale-90 select-none
-    ${isSmall ? "w-7 h-7 text-base" : "w-9 h-9 text-lg"}
+    flex items-center justify-center rounded-tg font-bold
+    transition-all duration-200 hover:scale-105 active:scale-95 select-none
+    ${isSmall ? "w-8 h-8" : "w-10 h-10"}
   `;
 
   const countClass = `
