@@ -1,6 +1,6 @@
 # 🍽️ Food Order — Telegram Mini App
 
-> 🤖 **AI agents:** see [`AGENTS.md`](AGENTS.md) for setup commands, coding conventions, and project-specific rules.
+> 🤖 **AI agents:** see [`docs/AGENTS.md`](docs/AGENTS.md) for setup commands, coding conventions, and project-specific rules.
 
 A fully-featured **Telegram Mini App** for food ordering from restaurants. Built with React + TypeScript, styled with Tailwind CSS, and deployed as a static site on **Cloudflare Pages**.
 
@@ -85,8 +85,8 @@ The frontend is **entirely static**. It:
 
 ```
 saleor-tma-frontend/
-├── AGENTS.md               # AI agent instructions (setup, conventions, gotchas)
 ├── docs/
+│   ├── AGENTS.md               # AI agent instructions (setup, conventions, gotchas)
 │   └── DEPLOY.md           # Full Cloudflare Pages deployment guide
 ├── public/
 │   ├── _redirects          # Cloudflare Pages SPA redirect rule

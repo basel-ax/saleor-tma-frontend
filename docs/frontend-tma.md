@@ -1,8 +1,48 @@
-## Telegram Mini App — Food Ordering (Frontend)
-**AI-Agent Implementation Spec (Markdown)**
+# Telegram Mini App — Food Ordering (Frontend)
 
-### 1) Objective
+> Opencode-compatible AI agent implementation specification for the Saleor TMA Frontend.
+
+---
+
+## 🎯 Overview
+
+This document specifies the implementation requirements for the Telegram Mini App (Telegram WebApp) frontend that enables users to order dishes from restaurants. It serves as both a functional specification and a guide for AI agents working on this codebase.
+
+**Core Objective:** Build a Telegram Mini App for restaurant food ordering with:
+- Restaurant browsing and selection
+- Category and dish exploration  
+- Single-restaurant cart management
+- Checkout with geolocation or Google Maps link
+- Order placement and confirmation
+
+**Key Constraints:**
+- Frontend-only deployment on Cloudflare Pages
+- Backend API lives in separate repository
+- Strict single-restaurant cart enforcement
+- Telegram WebApp integration via vanilla CDN script
+
+---
+
+## 📋 Table of Contents
+
+- [Objective](#-objective)
+- [Hard Rules](#-hard-rules-non-negotiable)
+- [Primary User Flows](#-primary-user-flows)
+- [Pages, Routes, Responsibilities](#-pages-routes-responsibilities)
+- [Data Model](#-data-model-frontend-state)
+- [Backend Integration](#-backend-integration-updated-contract)
+- [UI/UX Requirements](#-uiux-requirements-telegram-appropriate)
+- [Validation & Edge Cases](#-validation--edge-cases)
+- [Observability](#-observability-frontend-side-minimal)
+- [Deployment](#-deployment-cloudflare-pages-frontend-only)
+- [Acceptance Criteria](#-acceptance-criteria-definition-of-done)
+
+---
+
+## 🎯 Objective
+
 Build a **Telegram Mini App (Telegram WebApp)** for ordering dishes from restaurants:
+
 - **Restaurant selection** on main page
 - After selecting a restaurant → **Categories** page
 - Inside a category → **Dish list** where dishes can be added to a **single-restaurant cart**
@@ -13,7 +53,8 @@ Build a **Telegram Mini App (Telegram WebApp)** for ordering dishes from restaur
 
 ---
 
-### 2) Hard Rules (Non-negotiable)
+## ⚠️ Hard Rules (Non-negotiable)
+
 - **Single-restaurant cart**: cart items must belong to exactly **one restaurant**.
 - **Switching restaurants** while cart has items from another restaurant:
   - Show a confirmation message:
@@ -23,9 +64,9 @@ Build a **Telegram Mini App (Telegram WebApp)** for ordering dishes from restaur
 
 ---
 
-### 3) Primary User Flows
+## 🔄 Primary User Flows
 
-#### Flow A — Place an order
+### Flow A — Place an order
 1. Main (Restaurants) → select restaurant
 2. Categories → select category
 3. Dishes → add items to cart
@@ -33,7 +74,7 @@ Build a **Telegram Mini App (Telegram WebApp)** for ordering dishes from restaur
 5. Checkout → provide **(geo OR Google Maps link)** → Place order
 6. Success screen → option to return to restaurants (cart cleared)
 
-#### Flow B — Switch restaurant with active cart
+### Flow B — Switch restaurant with active cart
 1. User has cart items for Restaurant A
 2. User returns to Restaurants and selects Restaurant B
 3. App shows **cart-reset confirmation**
@@ -41,9 +82,9 @@ Build a **Telegram Mini App (Telegram WebApp)** for ordering dishes from restaur
 
 ---
 
-### 4) Pages, Routes, Responsibilities
+## 🗺️ Pages, Routes, Responsibilities
 
-#### 4.1 Restaurants (Main)
+### 4.1 Restaurants (Main)
 - **Route**: `/`
 - **Purpose**: list and select restaurants
 - **UI**:
@@ -54,26 +95,27 @@ Build a **Telegram Mini App (Telegram WebApp)** for ordering dishes from restaur
     - If cart empty OR same restaurant → go to Categories
     - Else → show cart-reset confirmation
 
-#### 4.2 Categories (Selected restaurant)
+### 4.2 Categories (Selected restaurant)
 - **Route**: `/restaurants/:restaurantId`
 - **Purpose**: show categories for chosen restaurant
 - **UI**:
   - Restaurant header (name)
   - Category list
   - Persistent cart access (badge count if items > 0)
+- **Behavior**: Standard category listing and navigation
 
-#### 4.3 Dishes (Inside category)
+### 4.3 Dishes (Inside category)
 - **Route**: `/restaurants/:restaurantId/categories/:categoryId`
 - **Purpose**: show dishes, allow add/remove
-- **Dish card MUST show**:
-  - **name**
-  - **description**
-  - **picture**
 - **Behavior**:
+  - **Dish card MUST show**:
+    - **name**
+    - **description**
+    - **picture**
   - Add dish → quantity +1
   - Remove/decrement → quantity -1, remove item when 0
 
-#### 4.4 Cart
+### 4.4 Cart
 - **Route**: `/cart`
 - **Purpose**: review cart, edit quantities, proceed
 - **UI**:
@@ -83,8 +125,9 @@ Build a **Telegram Mini App (Telegram WebApp)** for ordering dishes from restaur
   - Primary CTA: **Checkout**
 - **Behavior**:
   - If cart empty → show empty state + link to restaurants
+  - Standard cart modification operations
 
-#### 4.5 Checkout
+### 4.5 Checkout
 - **Route**: `/checkout`
 - **Purpose**: collect delivery location and create order
 - **Required delivery input (one of):**
@@ -93,32 +136,30 @@ Build a **Telegram Mini App (Telegram WebApp)** for ordering dishes from restaur
 - **Validation**:
   - Must provide exactly one method (or allow both but backend chooses one; preferred: enforce one)
   - Block “Place order” until valid
-- **Submit**:
-  - Create order via backend
-  - On success: show confirmation (order id), clear cart
-  - On failure: show error; keep cart
+- **Behavior**:
+  - **Submit**: Create order via backend
+  - **On success**: show confirmation (order id), clear cart
+  - **On failure**: show error; keep cart
 
 ---
 
-### 5) Data Model (Frontend State)
+## 📊 Data Model (Frontend State)
 
-#### 5.1 Entities (normalized or direct lists)
+### 5.1 Entities (normalized or direct lists)
 - **Restaurant**
   - `id: string`
   - `name: string`
   - `description?: string`
   - `imageUrl?: string`
   - `tags?: string[]`
-
 - **Category**
   - `id: string`
   - `restaurantId: string`
   - `name: string`
   - `description?: string`
   - `imageUrl?: string`
-
 - **Dish**
-  - `id: string`
+  - `id: string` (required)
   - `restaurantId: string`
   - `categoryId: string`
   - `name: string` (required)
@@ -127,25 +168,24 @@ Build a **Telegram Mini App (Telegram WebApp)** for ordering dishes from restaur
   - `price: number`
   - `currency: string`
 
-#### 5.2 Cart (single restaurant)
+### 5.2 Cart (single restaurant)
 - **Cart**
   - `restaurantId: string`
   - `items: CartItem[]`
   - `total: number`
   - `itemCount: number`
   - `updatedAt: string` (ISO)
-
 - **CartItem**
   - `dishId: string`
   - `quantity: number (>=1)`
-  - Snapshot fields (recommended for stable UI):
+  - **Snapshot fields** (recommended for stable UI):
     - `name: string`
     - `price: number`
     - `currency: string`
     - `imageUrl?: string`
     - `description?: string`
 
-#### 5.3 Persistence
+### 5.3 Persistence
 - Persist cart in `localStorage` (or equivalent) to survive reloads.
 - Clear cart:
   - After successful order
@@ -153,32 +193,32 @@ Build a **Telegram Mini App (Telegram WebApp)** for ordering dishes from restaur
 
 ---
 
-### 6) Backend Integration (Updated Contract)
+## 🔌 Backend Integration (Updated Contract)
 
-The backend is a Cloudflare Worker with a GraphQL API that implements all the required functionality. The frontend communicates with the backend using GraphQL queries and mutations.
+The backend is a Cloudflare Worker with a GraphQL API that implements all required functionality. The frontend communicates via GraphQL queries and mutations.
 
-#### 6.1 Auth / Identity (Telegram WebApp)
+### 6.1 Auth / Identity (Telegram WebApp)
 - Frontend obtains Telegram WebApp init data and sends it to backend on each request.
-- Header: `X-Telegram-Init-Data: <initData>` (mandatory for all requests)
+- **Header**: `X-Telegram-Init-Data: <initData>` (mandatory for all requests)
 
-#### 6.2 GraphQL API Endpoints
+### 6.2 GraphQL API Endpoints
 - **Endpoint**: `/graphql`
 - **Method**: POST (with query in body)
 
-#### 6.3 Available Queries
+### 6.3 Available Queries
 - `restaurants`: Returns `Restaurant[]`
-- `restaurantCategories(restaurantId: ID!)`: Returns `Category[]` for a specific restaurant
-- `categoryDishes(categoryId: ID!)`: Returns `Dish[]` for a specific category
+- `restaurantCategories(restaurantId: ID!)`: Returns `Category[]` for specific restaurant
+- `categoryDishes(categoryId: ID!)`: Returns `Dish[]` for specific category
 - `cart`: Returns current user's `Cart` (with items, total, count)
 
-#### 6.4 Available Mutations
+### 6.4 Available Mutations
 - `addToCart(input: AddToCartInput!)`: Add item to cart, returns updated `Cart`
 - `updateCartItem(input: UpdateCartItemInput!)`: Update item quantity, returns updated `Cart`
 - `removeCartItem(dishId: ID!)`: Remove item from cart, returns updated `Cart`
 - `clearCart`: Clear entire cart, returns empty `Cart`
 - `placeOrder(input: PlaceOrderInput!)`: Create order, returns `PlaceOrderPayload`
 
-#### 6.5 Input Types
+### 6.5 Input Types
 - **AddToCartInput**:
   ```graphql
   input AddToCartInput {
@@ -190,7 +230,6 @@ The backend is a Cloudflare Worker with a GraphQL API that implements all the re
     restaurantId: ID!
   }
   ```
-
 - **UpdateCartItemInput**:
   ```graphql
   input UpdateCartItemInput {
@@ -198,7 +237,6 @@ The backend is a Cloudflare Worker with a GraphQL API that implements all the re
     quantity: Int!
   }
   ```
-
 - **PlaceOrderInput**:
   ```graphql
   input PlaceOrderInput {
@@ -208,7 +246,6 @@ The backend is a Cloudflare Worker with a GraphQL API that implements all the re
     customerNote: String
   }
   ```
-
 - **DeliveryLocationInput**:
   ```graphql
   input DeliveryLocationInput {
@@ -220,7 +257,6 @@ The backend is a Cloudflare Worker with a GraphQL API that implements all the re
     longitude: Float
   }
   ```
-
 - **OrderItemInput**:
   ```graphql
   input OrderItemInput {
@@ -230,7 +266,7 @@ The backend is a Cloudflare Worker with a GraphQL API that implements all the re
   }
   ```
 
-#### 6.6 Response Types
+### 6.6 Response Types
 - **Cart**:
   ```graphql
   type Cart {
@@ -240,7 +276,6 @@ The backend is a Cloudflare Worker with a GraphQL API that implements all the re
     itemCount: Int!
   }
   ```
-
 - **PlaceOrderPayload**:
   ```graphql
   type PlaceOrderPayload {
@@ -252,7 +287,8 @@ The backend is a Cloudflare Worker with a GraphQL API that implements all the re
 
 ---
 
-### 7) UI/UX Requirements (Telegram-appropriate)
+## 🎨 UI/UX Requirements (Telegram-appropriate)
+
 - Must work in Telegram in-app browser (mobile first).
 - Respect Telegram theme (dark/light) if feasible.
 - Provide clear back navigation (Telegram BackButton integration recommended).
@@ -261,8 +297,9 @@ The backend is a Cloudflare Worker with a GraphQL API that implements all the re
 
 ---
 
-### 8) Validation & Edge Cases
-- **Cart mismatch**: prevent adding dishes from a different restaurant without reset confirmation (should be impossible via routing, but enforce in cart logic too).
+## ⚠️ Validation & Edge Cases
+
+- **Cart mismatch**: prevent adding dishes from different restaurant without reset confirmation (should be impossible via routing, but enforce in cart logic too).
 - **Dish image missing/broken**: show placeholder.
 - **Checkout location**:
   - If geolocation denied/unavailable → user can paste Google Maps link.
@@ -275,24 +312,29 @@ The backend is a Cloudflare Worker with a GraphQL API that implements all the re
 
 ---
 
-### 9) Observability (Frontend-side, minimal)
-- Log key events (console in dev; optional remote logging later):
-  - restaurant_selected
-  - dish_added / dish_removed
-  - cart_cleared_due_to_switch
-  - checkout_submit / checkout_success / checkout_failure
+## 👀 Observability (Frontend-side, minimal)
+
+Log key events (console in dev; optional remote logging later):
+- `restaurant_selected`
+- `dish_added` / `dish_removed`
+- `cart_cleared_due_to_switch`
+- `checkout_submit` / `checkout_success` / `checkout_failure`
 
 ---
 
-### 10) Deployment: Cloudflare Pages (Frontend only)
+## ☁️ Deployment: Cloudflare Pages (Frontend only)
+
 - Build output is static assets served by Cloudflare Pages.
 - Backend URL must be configurable:
   - `BACKEND_BASE_URL` (build-time environment variable)
 - All backend calls must be HTTPS and CORS-compatible.
 
+See [`docs/DEPLOY.md`](docs/DEPLOY.md) for full deployment guide.
+
 ---
 
-### 11) Acceptance Criteria (Definition of Done)
+## ✅ Acceptance Criteria (Definition of Done)
+
 - Main page lists restaurants and allows selection.
 - Selecting a restaurant navigates to categories.
 - Selecting a category shows dish list where each dish has **name, description, picture** and can be added.
@@ -301,6 +343,19 @@ The backend is a Cloudflare Worker with a GraphQL API that implements all the re
 - Checkout requires **geolocation OR Google Maps link** and blocks submission otherwise.
 - Order submission hits backend and shows success/failure; cart clears on success.
 - App is deployable as a static frontend to Cloudflare Pages; backend is external.
-- GraphQL API provides all required functionality as specified in Section 6.
+- GraphQL API provides all required functionality as specified in Backend Integration section.
 - All operations include proper error handling and user feedback.
 - Authentication with Telegram Init Data works for all backend requests.
+
+---
+
+## 📝 Changelog
+
+- Original: AI-Agent implementation spec for Telegram Mini App food ordering
+- 2026-04-03: Restructured for opencode compatibility with:
+  - Clear overview and objective sections
+  - Structured table of contents with anchor links
+  - Consistent heading hierarchy and formatting
+  - Dedicated sections for each major component
+  - Preserved all original technical specifications and requirements
+  - Added changelog for tracking updates

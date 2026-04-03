@@ -1,80 +1,224 @@
-AI Agents Integration Guide for saleor-tma-backend GraphQL Backend (Telegram Mini App)
+# AI Agents Integration Guide for Saleor TMA Backend
 
-Overview
-- This guide describes how AI Agents (QA, SEC, TS_CODE) should integrate with the GraphQL backend powering the Telegram Mini App.
-- Follow specs under specs/ (contract, flows, autotests) and the agent guides (AGENTS.md, QA_AGENT.md, SEC_AGENT.md, TS_CODE_AGENT.md).
+> Opencode-compatible guide for integrating AI agents with the GraphQL backend powering the Telegram Mini App.
 
-Prerequisites
-- Access to the GraphQL endpoint exposed by the backend (e.g., https://<host>/graphql).
-- A Known Telegram Init Data payload format and a header name to pass authentication/context (e.g., Telegram-Init-Data).
-- Ensure Node/Go environments align with the repo's worker setup and that Wrangler is available if you deploy tests against Cloudflare Workers.
-- Read the contract specs: specs/01-api-contract.md, specs/02-interaction-flow.md, specs/03-autotests.md.
+---
 
-API surface and contracts
-- The integration should target a minimal GraphQL surface driven by frontend flows:
-  - Queries to fetch lists and basic reads
-  - Mutations for placing orders, updating cart, or similar flows as defined in specs
-- All GraphQL inputs must be validated server-side (use Zod or similar validation in TS code) and mapped to Saleor’s required fields.
-- Resolve errors into descriptive GraphQL errors without leaking internal stacks.
-- Use a per-request auth context derived from Telegram Init Data and attached to the GraphQL context for downstream logic.
+## 🎯 Overview
 
-Authentication & context
-- All GraphQL calls must include a Telegram Init Data header (e.g., Telegram-Init-Data: { ... }).
-- Middleware should verify and parse this data, producing a validated context object (e.g., ctx.user, ctx.session).
-- Resolvers should rely on the context rather than pulling auth data from headers repeatedly.
+This guide describes how AI Agents should integrate with the GraphQL backend powering the Telegram Mini App. Follow specs under `specs/` (contract, flows, autotests) and the agent guides.
 
-Usage patterns (frontend integration)
-- Typical request (POST to /graphql):
-  {
-    "query": "query GetProducts { products { id name price } }",
-    "variables": {}
-  }
-- Include Telegram Init Data header on every request: Telegram-Init-Data: { ... }
-- Example (Curl):
-  curl -X POST https://<host>/graphql \
-    -H "Content-Type: application/json" \
-    -H "Telegram-Init-Data: { ... }" \
-    -d '{"query":"query GetProducts { products { id name price } }"}'
+**Key Integration Points:**
+- Target minimal GraphQL surface driven by frontend flows
+- All GraphQL inputs must be validated server-side
+- Use per-request auth context derived from Telegram Init Data
+- Resolve errors into descriptive GraphQL errors
 
-Frontend Integration Details
-- The frontend (Telegram Mini App) consumes the GraphQL API to implement restaurant browsing, cart management, and order placement
-- All GraphQL operations require authentication via X-Telegram-Init-Data header
-- The frontend implements specific user flows that map to GraphQL operations:
-  * Restaurant browsing: queries/restaurants, queries/restaurantCategories, queries/categoryDishes
-  * Cart management: queries/cart, mutations/addToCart, mutations/updateCartItem, mutations/removeCartItem, mutations/clearCart
-  * Order placement: mutations/placeOrder
-- Frontend state management mirrors the backend GraphQL types for seamless integration
-- Checkout requires either geolocation OR Google Maps link as delivery location input
-- Error handling follows the standardized GraphQL error shape: { errors: [{ message, code, field? }] }
+---
 
-Data formats and validation
-- Use strict input schemas for all mutations (e.g., PlaceOrderInput, DeliveryLocation) and map fields to Saleor equivalents.
-- Validate on server-side; return structured errors for invalid input.
-- Never leak sensitive data in error messages.
+## 🔧 Prerequisites
 
-Testing and validation
-- Follow specs/03-autotests.md and use the QA_AGENT approach to define tests for critical journeys.
-- Run tests locally: navigate to worker and run pnpm test (or your project’s test command) and ensure type checks pass.
-- Validate GraphQL surfaces against specs/01-api-contract.md.
+Before integrating, ensure you have:
 
-Security considerations
-- Verify Telegram Init Data on every request; extract identity securely in a per-request context.
-- Avoid revealing secrets in logs; use structured logging with redaction.
-- Keep dependencies up to date and audit for known issues.
+1. **Access** to the GraphQL endpoint (e.g., `https://<host>/graphql`)
+2. **Known** Telegram Init Data payload format and header name (`Telegram-Init-Data`)
+3. **Node/Go environments** aligning with repo's worker setup
+4. **Wrangler** available if deploying tests against Cloudflare Workers
+5. **Read contract specs**: `specs/01-api-contract.md`, `specs/02-interaction-flow.md`, `specs/03-autotests.md`
 
-Observability
-- Log critical events for tracing (auth, cart changes, orders).
-- Expose basic metrics if applicable (requests/sec, error rate).
+---
 
-Developer notes
-- The GraphQL backend lives under worker/schema.graphql with resolvers in worker/src. Use worker/index.ts as the entry.
-- The integration should respect the project’s patch conventions and be validated by TS_CODE_AGENT and QA_AGENT before merging.
-- Frontend integration details are documented in frontend-tma.md
+## 📡 API Surface and Contracts
 
-References
-- Specs: specs/01-api-contract.md, specs/02-interaction-flow.md, specs/03-autotests.md
-- Agent guides: AGENTS.md, QA_AGENT.md, SEC_AGENT.md, TS_CODE_AGENT.md
-- Frontend specification: frontend-tma.md
-- GraphQL API reference: docs/graphql-api.md (if present in repo)
+Integration should target this minimal GraphQL surface:
 
-End of guide
+### Queries (for lists and basic reads)
+- Fetch restaurants, categories, dishes
+- Cart retrieval
+
+### Mutations (as defined in specs)
+- Place orders
+- Update cart (add/remove/update items)
+- Clear cart
+
+### Validation Requirements
+- **Server-side validation** for all GraphQL inputs (use Zod or similar)
+- Map validated inputs to Saleor’s required fields
+- **Resolve errors** into descriptive GraphQL errors without leaking internal stacks
+- **Per-request auth context** from Telegram Init Data attached to GraphQL context
+
+---
+
+## 🔐 Authentication & Context
+
+### Mandatory Header
+- All GraphQL calls **must** include: `Telegram-Init-Data: { ... }`
+
+### Middleware Responsibilities
+1. Verify and parse Telegram Init Data
+2. Produce validated context object (e.g., `ctx.user`, `ctx.session`)
+3. Make context available to resolvers
+
+### Resolver Best Practices
+- Rely on context rather than pulling auth data from headers repeatedly
+- Context should contain user/session information for downstream logic
+
+---
+
+## 🔄 Usage Patterns (Frontend Integration)
+
+### Typical Request Structure
+```json
+{
+  "query": "query GetProducts { products { id name price } }",
+  "variables": {}
+}
+```
+
+### Required Headers
+- `Content-Type: application/json`
+- `Telegram-Init-Data: { ... }` (on every request)
+
+### Example (Curl)
+```bash
+curl -X POST https://<host>/graphql \
+  -H "Content-Type: application/json" \
+  -H "Telegram-Init-Data: { ... }" \
+  -d '{"query":"query GetProducts { products { id name price } }"}'
+```
+
+---
+
+## 🖥️ Frontend Integration Details
+
+The frontend (Telegram Mini App) consumes the GraphQL API for:
+
+### Core Features
+- Restaurant browsing
+- Cart management  
+- Order placement
+
+### Authentication
+- **All GraphQL operations** require `X-Telegram-Init-Data` header
+- Header value comes from `window.Telegram.WebApp.initData`
+
+### User Flow Mapping
+
+#### Restaurant Browsing
+- `queries/restaurants` → List all restaurants
+- `queries/restaurantCategories` → Categories for selected restaurant
+- `queries/categoryDishes` → Dishes in selected category
+
+#### Cart Management
+- `queries/cart` → Get current cart
+- `mutations/addToCart` → Add item to cart
+- `mutations/updateCartItem` → Update item quantity
+- `mutations/removeCartItem` → Remove item from cart
+- `mutations/clearCart` → Clear entire cart
+
+#### Order Placement
+- `mutations/placeOrder` → Create order with delivery location
+
+### State Management
+- Frontend state mirrors backend GraphQL types
+- Enables seamless integration and data consistency
+
+### Checkout Requirements
+- **Either** geolocation **OR** Google Maps link (exactly one required)
+- Backend validates delivery location input
+
+### Error Handling
+- Follows standardized GraphQL error shape
+- `{ errors: [{ message, code, field? }] }`
+- No internal stack traces exposed to frontend
+
+---
+
+## 📋 Data Formats and Validation
+
+### Input Validation
+- Use strict input schemas for all mutations
+  - `PlaceOrderInput`
+  - `DeliveryLocationInput`
+  - Cart operation inputs
+- Map fields to Saleor equivalents
+- **Server-side validation required**
+- Return structured errors for invalid input
+- **Never leak sensitive data** in error messages
+
+### Testing Approach
+- Follow `specs/03-autotests.md` for critical journeys
+- Run tests locally: `pnpm test` (or project test command)
+- Ensure type checks pass
+- Validate GraphQL surfaces against `specs/01-api-contract.md`
+
+---
+
+## 🔒 Security Considerations
+
+### Telegram Init Data
+- **Verify on every request**
+- Extract identity securely in per-request context
+- Never trust client-side data without verification
+
+### Logging & Secrets
+- Avoid revealing secrets in logs
+- Use structured logging with redaction
+- Sanitize output before logging
+
+### Dependencies
+- Keep dependencies up to date
+- Audit for known vulnerabilities regularly
+- Use lockfiles for reproducible builds
+
+---
+
+## 👀 Observability
+
+### Critical Events to Trace
+- Authentication events (success/failure)
+- Cart modifications (add/remove/update)
+- Order placement attempts
+- Validation failures
+
+### Metrics (if applicable)
+- Requests per second
+- Error rates by type
+- Response time percentiles
+- Cache hit/miss ratios
+
+---
+
+## 👨‍💻 Developer Notes
+
+### Backend Structure
+- GraphQL schema: `worker/schema.graphql`
+- Resolvers: `worker/src/`
+- Entry point: `worker/index.ts`
+
+### Integration Requirements
+- Respect project's patch conventions
+- Validate changes with `TS_CODE_AGENT` and `QA_AGENT` before merging
+- Frontend integration details: `docs/frontend-tma.md`
+
+### References
+- **Specs**: `specs/01-api-contract.md`, `specs/02-interaction-flow.md`, `specs/03-autotests.md`
+- **Agent guides**: `docs/AGENTS.md`, `docs/QA_AGENT.md`, `docs/SEC_AGENT.md`, `docs/TS_CODE_AGENT.md`
+- **Frontend spec**: `docs/frontend-tma.md`
+- **GraphQL API reference**: `docs/graphql-api.md` (if present)
+
+---
+
+## 📝 Changelog
+
+- Original: AI agents integration guide for backend
+- 2026-04-03: Restructured for opencode compatibility with:
+  - Clear overview and prerequisites sections
+  - API surface and contracts definition
+  - Authentication and context requirements
+  - Usage patterns with examples
+  - Frontend integration details
+  - Data formats and validation requirements
+  - Security considerations
+  - Observability guidelines
+  - Developer notes and references
