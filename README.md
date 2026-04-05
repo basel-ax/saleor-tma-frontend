@@ -193,7 +193,7 @@ All Vite env variables must be prefixed with `VITE_` to be available in the brow
 | Variable | Required | Description |
 |---|---|---|
 | `VITE_BACKEND_BASE_URL` | ✅ Yes | Base URL of the backend API (no trailing slash). Example: `https://api.example.com` |
-| `VITE_DEV_INIT_DATA` | No | URL-encoded Telegram init data string for local development. When not set, a mock init data with user ID 0 is automatically generated. Example: `auth_date=1700000000&user={"id":0}&hash=test` |
+| `VITE_DEV_INIT_DATA` | No | Fixed URL-encoded Telegram init data string for local development. When not set, a fresh mock with current `auth_date` timestamp is auto-generated on every API request — preventing "init data expired" errors during long dev sessions. Example: `auth_date=1700000000&user={"id":0}&hash=test` |
 
 Set these in the Cloudflare Pages dashboard under **Settings → Environment variables**. See the [deployment guide](docs/DEPLOY.md#environment-variables) for full details.
 
@@ -237,14 +237,16 @@ All API requests include the Telegram init data in the `X-Telegram-Init-Data` he
   1. The `VITE_DEV_INIT_DATA` environment variable (if set)
   2. Auto-generated mock data via `generateMockInitData()` from `src/utils/initData.ts`
 
+The mock `initData` is implemented as a **getter** — meaning `generateMockInitData()` is called on every access, producing a fresh `auth_date` timestamp each time. This prevents "init data expired" errors during long development sessions.
+
 The mock data uses:
-- `auth_date` with the current timestamp
+- `auth_date` with the current timestamp (regenerated on every API request)
 - A dummy `hash` value (valid for development only)
 - User ID `0` with test user info
 
 #### Development Mode Expiration Warning
 
-When running outside Telegram (browser mode), the app checks if the init data's `auth_date` is older than 24 hours and logs a warning to the console. This helps identify stale test data during development.
+When running outside Telegram (browser mode), the app checks if the init data's `auth_date` is older than 24 hours and logs a warning to the console. This helps identify stale test data during development (e.g., when `VITE_DEV_INIT_DATA` is set to a fixed value with an old timestamp).
 
 #### API Header Format
 
