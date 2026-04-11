@@ -120,15 +120,15 @@ export async function fetchRestaurants(): Promise<Restaurant[]> {
 
 /** GET categories for a restaurant */
 export async function fetchCategories(restaurantId: string): Promise<Category[]> {
-   const query = `query GetCategories($restaurantId: ID!) {
-     categories(restaurantId: $restaurantId) {
-       id
-       restaurantId
-       name
-       description
-       imageUrl
-     }
-   }`;
+    const query = `query GetCategories($restaurantId: ID!) {
+      restaurantCategories(restaurantId: $restaurantId) {
+        id
+        restaurantId
+        name
+        description
+        imageUrl
+      }
+    }`;
    const data = await requestGraphQL<{ categories: Category[] }>(query, {
       restaurantId,
    });
@@ -137,27 +137,27 @@ export async function fetchCategories(restaurantId: string): Promise<Category[]>
 
 /** GET dishes for a restaurant/category */
 export async function fetchDishes(
-   restaurantId: string,
-   categoryId: string,
-): Promise<Dish[]> {
-   const query = `query GetDishes($restaurantId: ID!, $categoryId: ID!) {
-     dishes(restaurantId: $restaurantId, categoryId: $categoryId) {
-       id
-       restaurantId
-       categoryId
-       name
-       description
-       imageUrl
-       price
-       currency
-     }
-   }`;
-   const data = await requestGraphQL<{ dishes: Dish[] }>(query, {
-      restaurantId,
-      categoryId,
-   });
-   return data.dishes;
-}
+    restaurantId: string,
+    categoryId: string,
+ ): Promise<Dish[]> {
+    const query = `query GetDishes($categoryId: ID!, $restaurantId: ID!) {
+      categoryDishes(categoryId: $categoryId, restaurantId: $restaurantId) {
+        id
+        restaurantId
+        categoryId
+        name
+        description
+        imageUrl
+        price
+        currency
+      }
+    }`;
+    const data = await requestGraphQL<{ categoryDishes: Dish[] }>(query, {
+       categoryId,
+       restaurantId,
+    });
+    return data.categoryDishes;
+ }
 
 /** GET cart */
 export async function fetchCart(): Promise<Cart | null> {
