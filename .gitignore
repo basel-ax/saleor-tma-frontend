@@ -51,3 +51,6 @@ lerna-debug.log*
 .wrangler/
 .dev.vars
 .opencode/skills/ui-ux-pro-max/scripts/__pycache__/
+
+# OpenCode
+.opencode/
