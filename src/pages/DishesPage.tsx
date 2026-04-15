@@ -90,24 +90,21 @@ const DishesPage: FC = () => {
       <div className="page">
         <PageHeader title={category?.name ?? "Dishes"} showBack showCart />
         <div className="page-content">
-          <div className="flex flex-col gap-3">
-            {[1, 2, 3, 4].map((i) => (
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
               <div
                 key={i}
-                className="flex gap-3 p-3 rounded-tg"
+                className="rounded-tg overflow-hidden"
                 style={{
                   backgroundColor: "var(--tg-theme-secondary-bg-color)",
                 }}
               >
-                <div className="skeleton flex-shrink-0 w-24 h-24 rounded-xl" />
-                <div className="flex-1 flex flex-col gap-2 justify-between py-1">
-                  <div className="space-y-2">
-                    <div className="skeleton h-4 w-3/4 rounded" />
-                    <div className="skeleton h-3 w-full rounded" />
-                    <div className="skeleton h-3 w-2/3 rounded" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <div className="skeleton h-5 w-16 rounded" />
+                <div className="aspect-[4/3] skeleton" />
+                <div className="p-3 space-y-2">
+                  <div className="skeleton h-4 w-3/4 rounded" />
+                  <div className="skeleton h-3 w-full rounded" />
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="skeleton h-4 w-12 rounded" />
                     <div className="skeleton w-8 h-8 rounded-full" />
                   </div>
                 </div>
@@ -143,14 +140,14 @@ const DishesPage: FC = () => {
         <PageHeader title={category?.name ?? "Dishes"} showBack showCart />
         <EmptyState
           icon="🍽️"
-          title="No dishes available"
-          description="This category doesn't have any dishes yet. Try another category."
+          title={t('no_dishes_available')}
+          description={t('no_dishes_description')}
           action={
             <button
               className="tg-btn tg-btn-secondary"
               onClick={() => navigate(`/restaurants/${restaurantId}`)}
             >
-              Back to Menu
+              {t('back_to_menu')}
             </button>
           }
         />
@@ -186,9 +183,9 @@ const DishesPage: FC = () => {
          </p>
        </div>
 
-      {/* Dish list */}
+      {/* Dish list - 2 column grid */}
       <div className="page-content pt-0">
-        <div className="flex flex-col gap-3 animate-slide-up">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 animate-slide-up">
           {dishes.map((dish: Dish, index: number) => (
             <div
               key={dish.id}

@@ -165,7 +165,7 @@ const CartPage: FC = () => {
                         className="text-xs"
                         style={{ color: "var(--tg-theme-hint-color)" }}
                       >
-                        {formatPrice(item.price)} each
+                        {formatPrice(item.price)} {t('each')}
                       </span>
                       <span
                         className="text-sm font-bold"
@@ -262,7 +262,7 @@ const CartPage: FC = () => {
                 className="text-base font-bold"
                 style={{ color: "var(--tg-theme-text-color)" }}
               >
-                Total
+                {t('total')}
               </span>
               <span
                 className="text-base font-bold"

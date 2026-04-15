@@ -26,11 +26,10 @@ export const DishCard: FC<DishCardProps> = ({
 
   return (
     <div
-      className="block w-full rounded-tg overflow-hidden shadow-tg transition-all duration-200 hover:shadow-tg-lg animate-fade-in"
+      className="flex flex-col w-full rounded-tg overflow-hidden shadow-tg transition-all duration-200 hover:shadow-tg-lg animate-fade-in cursor-pointer"
       style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
     >
-      {/* Dish Image */}
-      <div className="relative flex-shrink-0 w-24 h-24 rounded-xl overflow-hidden">
+      <div className="aspect-[4/3] overflow-hidden rounded-tg">
         {dish.imageUrl ? (
           <>
             <img
@@ -45,7 +44,6 @@ export const DishCard: FC<DishCardProps> = ({
                 if (placeholder) placeholder.style.display = "flex";
               }}
             />
-            {/* Fallback placeholder — hidden until image fails */}
             <div
               className="absolute inset-0 items-center justify-center"
               style={{
@@ -53,58 +51,50 @@ export const DishCard: FC<DishCardProps> = ({
                 backgroundColor: "var(--tg-theme-secondary-bg-color)",
               }}
             >
-              {/* Using SVG instead of emoji for professional icon */}
-              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2l-9 9h5l3 9V9a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v4l3-9h5z"/>
               </svg>
             </div>
           </>
         ) : (
-          /* No image URL — show placeholder immediately */
           <div className="w-full h-full flex items-center justify-center">
-            {/* Using SVG instead of emoji for professional icon */}
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M12 2l-9 9h5l3 9V9a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v4l3-9h5z"/>
             </svg>
           </div>
         )}
       </div>
 
-      {/* Content */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between gap-3 p-4">
+      <div className="flex-1 min-w-0 flex flex-col justify-between gap-2 p-3">
         <div className="min-w-0">
-          {/* Name */}
           <h3
-            className="text-lg font-semibold leading-tight mb-2 line-clamp-2"
+            className="text-sm sm:text-base font-semibold leading-tight line-clamp-2"
             style={{ color: "var(--tg-theme-text-color)" }}
           >
             {dish.name}
           </h3>
 
-          {/* Description */}
           <p
-            className="text-sm leading-snug line-clamp-2"
+            className="text-xs sm:text-sm leading-snug line-clamp-2 mt-1"
             style={{ color: "var(--tg-theme-hint-color)" }}
           >
             {dish.description}
           </p>
         </div>
 
-        {/* Price + Controls */}
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex items-center justify-between gap-2 mt-2">
           <span
-            className="text-lg font-bold"
+            className="text-base sm:text-lg font-bold"
             style={{ color: "var(--tg-theme-text-color)" }}
           >
             {formattedPrice}
           </span>
 
           {quantity === 0 ? (
-            /* Add button — shown when dish not in cart */
             <button
               onClick={() => onAdd(dish)}
               aria-label={`Add ${dish.name} to cart`}
-              className="flex items-center justify-center w-10 h-10 rounded-full font-bold text-xl transition-all duration-200 hover:scale-105 active:scale-95"
+              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full font-bold text-lg transition-all duration-200 hover:scale-105 active:scale-95"
               style={{
                 backgroundColor: "var(--tg-theme-button-color)",
                 color: "var(--tg-theme-button-text-color)",
@@ -113,12 +103,11 @@ export const DishCard: FC<DishCardProps> = ({
               +
             </button>
           ) : (
-            /* Stepper — shown when dish is in cart */
             <QuantityStepper
               quantity={quantity}
               onIncrement={() => onIncrement(dish.id)}
               onDecrement={() => onDecrement(dish.id)}
-              size="md"
+              size="sm"
             />
           )}
         </div>

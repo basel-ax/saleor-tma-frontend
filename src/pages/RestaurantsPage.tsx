@@ -15,11 +15,13 @@ import EmptyState from "../components/EmptyState";
 import CartBadge from "../components/CartBadge";
 import { LanguageSwitcher } from "../components/LanguageSwitcher";
 import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
+import { useLanguage } from "../context/LanguageContext";
 
   const RestaurantsPage: FC = () => {
     const navigate = useNavigate();
     const isDifferentRestaurant = useCartStore((s) => s.isDifferentRestaurant);
     const clearCart = useCartStore((s) => s.clearCart);
+    const { t } = useLanguage();
 
     const [searchQuery, setSearchQuery] = useState("");
     const [pendingRestaurant, setPendingRestaurant] = useState<Restaurant | null>(
@@ -90,11 +92,11 @@ import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
           className="flex items-center justify-between px-4 py-3 sticky top-0 z-40"
           style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
         >
-          <h1
+<h1
             className="text-xl font-bold"
             style={{ color: "var(--tg-theme-text-color)" }}
           >
-            🍽️ Restaurants
+            🍽️ {t('restaurants_title')}
           </h1>
           <CartBadge />
         </div>
@@ -135,14 +137,14 @@ import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
             className="text-xl font-bold"
             style={{ color: "var(--tg-theme-text-color)" }}
           >
-            🍽️ Restaurants
+            🍽️ {t('restaurants_title')}
           </h1>
         </div>
         <ErrorState
-          title="Couldn't load restaurants"
+          title={t('something_went_wrong')}
           message={
             (error as Error)?.message ||
-            "Please check your connection and try again."
+            t('unexpected_error')
           }
           onRetry={() => refetch()}
         />
@@ -153,54 +155,54 @@ import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
   // ─── Main render ─────────────────────────────────────────────────────────────
   return (
     <div className="page">
-       {/* Header */}
+{/* Header */}
        <div
-         className="flex items-center justify-between px-4 py-3 sticky top-0 z-40"
-         style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-       >
-         <h1
-           className="text-xl font-bold"
-           style={{ color: "var(--tg-theme-text-color)" }}
-         >
-           🍽️ Restaurants
-         </h1>
-            <div className="flex items-center gap-2">
-             <CartBadge />
-             <LanguageSwitcher className="flex-shrink-0"></LanguageSwitcher>
-             <button
-               onClick={() => setSettingsOpen(true)}
-               aria-label="Settings"
-               className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"
-               style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
-             >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--tg-theme-text-color)"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
+          className="flex items-center justify-between px-4 py-3 sticky top-0 z-40"
+          style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
+        >
+          <h1
+            className="text-xl font-bold"
+            style={{ color: "var(--tg-theme-text-color)" }}
+          >
+            🍽️ Restaurants
+          </h1>
+             <div className="flex items-center gap-2">
+              <CartBadge />
+              <LanguageSwitcher className="flex-shrink-0"></LanguageSwitcher>
+              <button
+                onClick={() => setSettingsOpen(true)}
+                aria-label="Settings"
+                className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"
+                style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
               >
-                <circle cx="12" cy="12" r="1" />
-                <circle cx="12" cy="5" r="1" />
-                <circle cx="12" cy="19" r="1" />
-              </svg>
-            </button>
-          </div>
-       </div>
+               <svg
+                 width="18"
+                 height="18"
+                 viewBox="0 0 24 24"
+                 fill="none"
+                 stroke="var(--tg-theme-text-color)"
+                 strokeWidth="2"
+                 strokeLinecap="round"
+                 strokeLinejoin="round"
+                 aria-hidden="true"
+               >
+                 <circle cx="12" cy="12" r="1" />
+                 <circle cx="12" cy="5" r="1" />
+                 <circle cx="12" cy="19" r="1" />
+               </svg>
+             </button>
+           </div>
+        </div>
 
-       {/* Search */}
-       <div
-         className="px-4 pb-3 sticky top-[52px] z-30"
-         style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-       >
-         <div
-           className="flex items-center gap-2 rounded-xl px-3 h-11"
-           style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
-         >
+        {/* Search */}
+        <div
+          className="px-4 pb-3 sticky top-[52px] z-30"
+          style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
+        >
+          <div
+            className="flex items-center gap-2 rounded-xl px-3 h-11"
+            style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+          >
            <svg
              width="16"
              height="16"
@@ -216,28 +218,28 @@ import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
              <circle cx="11" cy="11" r="8" />
              <line x1="21" y1="21" x2="16.65" y2="16.65" />
            </svg>
-           <input
-             type="search"
-             placeholder="Search restaurants..."
-             value={searchQuery}
-             onChange={(e) => setSearchQuery(e.target.value)}
-             className="flex-1 bg-transparent text-sm outline-none"
-             style={{ color: "var(--tg-theme-text-color)" }}
-             aria-label="Search restaurants"
-           />
-           {searchQuery && (
-             <button
-               onClick={() => setSearchQuery("")}
-               aria-label="Clear search"
-               className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold"
-               style={{
-                 backgroundColor: "var(--tg-theme-hint-color)",
-                 color: "var(--tg-theme-secondary-bg-color)",
-               }}
-             >
-               ×
-             </button>
-           )}
+<input
+              type="search"
+              placeholder={t('search_placeholder')}
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="flex-1 bg-transparent text-sm outline-none"
+              style={{ color: "var(--tg-theme-text-color)" }}
+              aria-label="Search restaurants"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                aria-label={t('clear_search')}
+                className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold"
+                style={{
+                  backgroundColor: "var(--tg-theme-hint-color)",
+                  color: "var(--tg-theme-secondary-bg-color)",
+                }}
+              >
+                ×
+              </button>
+            )}
          </div>
        </div>
 
@@ -245,30 +247,30 @@ import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
        <div className="page-content pt-0">
          {filteredRestaurants.length === 0 ? (
            searchQuery ? (
-             <EmptyState
-               icon="🔍"
-               title="No results found"
-               description={`No restaurants match "${searchQuery}". Try a different search term.`}
-               action={
-                 <button
-                   className="tg-btn tg-btn-secondary"
-                   onClick={() => setSearchQuery("")}
-                 >
-                   Clear Search
-                 </button>
-               }
-             />
+<EmptyState
+                icon="🔍"
+                title={t('no_results_found')}
+                description={t('no_results_description', searchQuery)}
+                action={
+                  <button
+                    className="tg-btn tg-btn-secondary"
+                    onClick={() => setSearchQuery("")}
+                  >
+                    {t('clear_search')}
+                  </button>
+                }
+              />
            ) : (
-             <EmptyState
-               icon="🏪"
-               title="No restaurants available"
-               description="Check back later for new restaurants in your area."
-               action={
-                 <button className="tg-btn" onClick={() => refetch()}>
-                   Refresh
-                 </button>
-               }
-             />
+<EmptyState
+                icon="🏪"
+                title={t('no_restaurants_available')}
+                description={t('no_restaurants_description')}
+                action={
+                  <button className="tg-btn" onClick={() => refetch()}>
+                    {t('refresh')}
+                  </button>
+                }
+              />
            )
          ) : (
            <div className="flex flex-col gap-3 animate-slide-up">

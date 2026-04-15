@@ -129,10 +129,10 @@ export async function fetchCategories(restaurantId: string): Promise<Category[]>
         imageUrl
       }
     }`;
-   const data = await requestGraphQL<{ categories: Category[] }>(query, {
+   const data = await requestGraphQL<{ restaurantCategories: Category[] }>(query, {
       restaurantId,
    });
-   return data.categories;
+   return data.restaurantCategories;
 }
 
 /** GET dishes for a restaurant/category */

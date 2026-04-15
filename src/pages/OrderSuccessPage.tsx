@@ -150,9 +150,9 @@ export const OrderSuccessPage: FC = () => {
         <button
           onClick={handleBackToRestaurants}
           className="tg-btn"
-          aria-label="Back to restaurants"
+          aria-label={t('back_to_restaurants')}
         >
-          Order More Food
+          {t('order_more_food')}
         </button>
       </div>
     </div>

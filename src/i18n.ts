@@ -54,6 +54,8 @@ export const translations = {
     item: "item",
     items: "items",
     proceed_to_checkout: "Proceed to Checkout",
+    total: "Total",
+    each: "each",
     // CheckoutPage
     checkout_title: "Checkout",
     delivery_location: "Delivery Location",
@@ -139,6 +141,8 @@ export const translations = {
     item: "товар",
     items: "товаров",
     proceed_to_checkout: "Оформить заказ",
+    total: "Итого",
+    each: "за шт.",
     // CheckoutPage
     checkout_title: "Оформление заказа",
     delivery_location: "Место доставки",

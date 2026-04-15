@@ -44,9 +44,15 @@ const CategoriesPage: FC = () => {
       <div className="page">
         <PageHeader title={restaurant?.name ?? "Menu"} showBack showCart />
         <div className="page-content">
-          <div className="flex flex-col gap-2">
-            {[1, 2, 3, 4, 5].map((i) => (
-              <div key={i} className="skeleton h-16 w-full rounded-tg" />
+          <div className="grid grid-cols-2 gap-3 sm:gap-4">
+            {[1, 2, 3, 4, 5, 6].map((i) => (
+              <div key={i} className="rounded-tg overflow-hidden">
+                <div className="aspect-[4/3] skeleton" />
+                <div className="p-3 space-y-2">
+                  <div className="skeleton h-4 w-3/4 rounded" />
+                  <div className="skeleton h-3 w-full rounded" />
+                </div>
+              </div>
             ))}
           </div>
         </div>
@@ -78,14 +84,14 @@ const CategoriesPage: FC = () => {
         <PageHeader title={restaurant?.name ?? "Menu"} showBack showCart />
         <EmptyState
           icon="📋"
-          title="No categories yet"
-          description="This restaurant hasn't added any menu categories yet. Check back later."
+          title={t('no_categories_yet')}
+          description={t('no_categories_description')}
           action={
             <button
               className="tg-btn tg-btn-secondary"
               onClick={() => navigate("/")}
             >
-              Back to Restaurants
+              {t('back_to_restaurants')}
             </button>
           }
         />
@@ -139,9 +145,9 @@ const CategoriesPage: FC = () => {
          </p>
        </div>
 
-      {/* Category list */}
+      {/* Category list - 2 column grid */}
       <div className="page-content pt-0 animate-slide-up">
-        <div className="flex flex-col gap-2">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {categories.map((category: Category, index: number) => (
             <button
               key={category.id}
@@ -150,7 +156,7 @@ const CategoriesPage: FC = () => {
                   `/restaurants/${restaurantId}/categories/${category.id}`,
                 )
               }
-              className="w-full text-left rounded-tg overflow-hidden transition-all duration-150 active:scale-[0.98] active:opacity-80 animate-fade-in"
+              className="text-left rounded-tg overflow-hidden transition-all duration-150 active:scale-[0.98] active:opacity-80 animate-fade-in cursor-pointer"
               style={{
                 backgroundColor: "var(--tg-theme-secondary-bg-color)",
                 animationDelay: `${index * 40}ms`,
@@ -158,81 +164,46 @@ const CategoriesPage: FC = () => {
               }}
               aria-label={`Browse ${category.name}`}
             >
-              <div className="flex items-center gap-3 p-3.5">
-                {/* Category image or emoji placeholder */}
+              <div className="aspect-[4/3] overflow-hidden">
+                {category.imageUrl ? (
+                  <img
+                    src={category.imageUrl}
+                    alt={category.name}
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.currentTarget;
+                      target.style.display = "none";
+                      const placeholder =
+                        target.nextElementSibling as HTMLElement | null;
+                      if (placeholder) placeholder.style.display = "flex";
+                    }}
+                  />
+                ) : null}
                 <div
-                  className="relative flex-shrink-0 w-14 h-14 rounded-xl overflow-hidden"
-                  style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
+                  className="w-full h-full flex items-center justify-center text-4xl sm:text-5xl"
+                  style={{
+                    display: category.imageUrl ? "none" : "flex",
+                    backgroundColor: "var(--tg-theme-bg-color)",
+                  }}
                 >
-                  {category.imageUrl ? (
-                    <>
-                      <img
-                        src={category.imageUrl}
-                        alt={category.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          const target = e.currentTarget;
-                          target.style.display = "none";
-                          const placeholder =
-                            target.nextElementSibling as HTMLElement | null;
-                          if (placeholder) placeholder.style.display = "flex";
-                        }}
-                      />
-                      {/* Fallback placeholder — hidden until image fails */}
-                      <div
-                        className="absolute inset-0 items-center justify-center text-2xl"
-                        style={{
-                          display: "none",
-                          backgroundColor: "var(--tg-theme-bg-color)",
-                        }}
-                      >
-                        🍴
-                      </div>
-                    </>
-                  ) : (
-                    /* No image URL — show placeholder immediately */
-                    <div
-                      className="w-full h-full flex items-center justify-center text-2xl"
-                      style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-                    >
-                      🍴
-                    </div>
-                  )}
+                  🍴
                 </div>
-
-                {/* Text */}
-                <div className="flex-1 min-w-0">
-                  <h3
-                    className="text-base font-semibold leading-tight mb-0.5 truncate"
-                    style={{ color: "var(--tg-theme-text-color)" }}
+              </div>
+              <div className="p-3">
+                <h3
+                  className="text-base font-semibold leading-tight mb-1 truncate"
+                  style={{ color: "var(--tg-theme-text-color)" }}
+                >
+                  {category.name}
+                </h3>
+                {category.description && (
+                  <p
+                    className="text-sm line-clamp-2"
+                    style={{ color: "var(--tg-theme-hint-color)" }}
                   >
-                    {category.name}
-                  </h3>
-                  {category.description && (
-                    <p
-                      className="text-sm line-clamp-1"
-                      style={{ color: "var(--tg-theme-hint-color)" }}
-                    >
-                      {category.description}
-                    </p>
-                  )}
-                </div>
-
-                {/* Chevron */}
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="var(--tg-theme-hint-color)"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  aria-hidden="true"
-                  className="flex-shrink-0"
-                >
-                  <polyline points="9 18 15 12 9 6" />
-                </svg>
+                    {category.description}
+                  </p>
+                )}
               </div>
             </button>
           ))}
