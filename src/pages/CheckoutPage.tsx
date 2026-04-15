@@ -272,15 +272,14 @@ const CheckoutPage: FC = () => {
           >
             <div className="p-4 space-y-2">
               {/* Restaurant */}
-              <div
-                className="flex items-center gap-2 pb-2 border-b"
-                style={{ borderColor: "var(--tg-theme-bg-color)" }}
-              >
-                <span className="text-base">🏪</span>
-                <span
-                  className="text-sm font-semibold"
-                  style={{ color: "var(--tg-theme-text-color)" }}
-                >
+              <div className="flex items-center gap-3 pb-2 border-b" style={{ borderColor: "var(--tg-theme-bg-color)" }}>
+                <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "var(--tg-theme-bg-color)" }}>
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--tg-theme-text-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
+                    <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9" />
+                  </svg>
+                </div>
+                <span className="text-base font-semibold" style={{ color: "var(--tg-theme-text-color)" }}>
                   {cart.restaurantName}
                 </span>
               </div>
@@ -352,13 +351,13 @@ const CheckoutPage: FC = () => {
                  className="p-4 border-b"
                  style={{ borderColor: "var(--tg-theme-bg-color)" }}
                >
-                 <div className="flex items-start gap-3 mb-3">
-                   <div
-                     className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-                     style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-                   >
-                     📍
-                   </div>
+<div className="flex items-start gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "var(--tg-theme-bg-color)" }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--tg-theme-text-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <circle cx="12" cy="12" r="10" />
+                        <circle cx="12" cy="12" r="3" />
+                      </svg>
+                    </div>
                    <div className="flex-1 min-w-0">
                      <p
                        className="text-sm font-semibold"
@@ -476,13 +475,14 @@ const CheckoutPage: FC = () => {
 
                {/* ── Option 2: Google Maps link ── */}
                <div className="p-4">
-                 <div className="flex items-start gap-3 mb-3">
-                   <div
-                     className="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-lg"
-                     style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-                   >
-                     🗺️
-                   </div>
+<div className="flex items-start gap-3 mb-3">
+                    <div className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0" style={{ backgroundColor: "var(--tg-theme-bg-color)" }}>
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--tg-theme-text-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21" />
+                        <line x1="9" y1="3" x2="9" y2="18" />
+                        <line x1="15" y1="6" x2="15" y2="21" />
+                      </svg>
+                    </div>
                    <div className="flex-1 min-w-0">
                      <p
                        className="text-sm font-semibold"

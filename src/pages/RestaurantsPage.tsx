@@ -160,70 +160,74 @@ import { useLanguage } from "../context/LanguageContext";
           className="flex items-center justify-between px-4 py-3 sticky top-0 z-40"
           style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
         >
-          <h1
+<h1
             className="text-xl font-bold"
             style={{ color: "var(--tg-theme-text-color)" }}
           >
-            🍽️ Restaurants
+            {t('restaurants_title')}
           </h1>
-             <div className="flex items-center gap-2">
-              <CartBadge />
-              <LanguageSwitcher className="flex-shrink-0"></LanguageSwitcher>
-              <button
-                onClick={() => setSettingsOpen(true)}
-                aria-label="Settings"
-                className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"
-                style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+           <div className="flex items-center gap-1">
+            <LanguageSwitcher className="flex-shrink-0"></LanguageSwitcher>
+            <button
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Settings"
+              className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"
+              style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="var(--tg-theme-text-color)"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                aria-hidden="true"
               >
-               <svg
-                 width="18"
-                 height="18"
-                 viewBox="0 0 24 24"
-                 fill="none"
-                 stroke="var(--tg-theme-text-color)"
-                 strokeWidth="2"
-                 strokeLinecap="round"
-                 strokeLinejoin="round"
-                 aria-hidden="true"
-               >
-                 <circle cx="12" cy="12" r="1" />
-                 <circle cx="12" cy="5" r="1" />
-                 <circle cx="12" cy="19" r="1" />
-               </svg>
-             </button>
+                <circle cx="12" cy="12" r="1" />
+                <circle cx="12" cy="5" r="1" />
+                <circle cx="12" cy="19" r="1" />
+              </svg>
+            </button>
+            <CartBadge />
            </div>
         </div>
 
-        {/* Search */}
+{/* Search */}
         <div
           className="px-4 pb-3 sticky top-[52px] z-30"
           style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
         >
           <div
-            className="flex items-center gap-2 rounded-xl px-3 h-11"
-            style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+            className="flex items-center gap-2 rounded-xl px-3 h-12 border transition-all duration-200"
+            style={{ 
+              backgroundColor: "var(--tg-theme-secondary-bg-color)",
+              borderColor: "var(--tg-theme-secondary-bg-color)",
+              boxShadow: "0 1px 3px rgba(0,0,0,0.08)"
+            }}
           >
-           <svg
-             width="16"
-             height="16"
-             viewBox="0 0 24 24"
-             fill="none"
-             stroke="var(--tg-theme-hint-color)"
-             strokeWidth="2"
-             strokeLinecap="round"
-             strokeLinejoin="round"
-             aria-hidden="true"
-             className="flex-shrink-0"
-           >
-             <circle cx="11" cy="11" r="8" />
-             <line x1="21" y1="21" x2="16.65" y2="16.65" />
-           </svg>
-<input
+            <svg
+              width="18"
+              height="18"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="var(--tg-theme-hint-color)"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              aria-hidden="true"
+              className="flex-shrink-0"
+            >
+              <circle cx="11" cy="11" r="8" />
+              <line x1="21" y1="21" x2="16.65" y2="16.65" />
+            </svg>
+            <input
               type="search"
               placeholder={t('search_placeholder')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent text-sm outline-none"
+              className="flex-1 bg-transparent text-base outline-none"
               style={{ color: "var(--tg-theme-text-color)" }}
               aria-label="Search restaurants"
             />
@@ -231,17 +235,20 @@ import { useLanguage } from "../context/LanguageContext";
               <button
                 onClick={() => setSearchQuery("")}
                 aria-label={t('clear_search')}
-                className="flex-shrink-0 w-5 h-5 flex items-center justify-center rounded-full text-xs font-bold"
+                className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold transition-all duration-200 hover:scale-110 active:scale-90"
                 style={{
                   backgroundColor: "var(--tg-theme-hint-color)",
                   color: "var(--tg-theme-secondary-bg-color)",
                 }}
               >
-                ×
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             )}
-         </div>
-       </div>
+          </div>
+        </div>
 
        {/* Restaurant list */}
        <div className="page-content pt-0">

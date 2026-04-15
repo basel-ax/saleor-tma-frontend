@@ -212,27 +212,26 @@ const DishesPage: FC = () => {
         <div className="bottom-bar animate-slide-up">
           <button
             onClick={() => navigate("/cart")}
-            className="tg-btn flex items-center justify-between px-5"
+            className="tg-btn flex items-center justify-between px-5 py-3"
+            style={{ boxShadow: "0 -2px 10px rgba(0,0,0,0.1)" }}
             aria-label={`View cart — ${totalItems} items`}
           >
-            {/* Left: item count badge */}
-            <span
-              className="min-w-[28px] h-7 rounded-lg flex items-center justify-center text-sm font-bold px-1"
-              style={{
-                backgroundColor: "rgba(255,255,255,0.25)",
-              }}
-            >
-              {totalItems}
-            </span>
+            <div className="flex items-center gap-3">
+              <span
+                className="w-8 h-8 rounded-lg flex items-center justify-center text-base font-bold"
+                style={{
+                  backgroundColor: "rgba(255,255,255,0.25)",
+                }}
+              >
+                {totalItems}
+              </span>
+              <span className="text-base font-semibold">
+                {t('cart_title')}
+              </span>
+            </div>
 
-            {/* Center: label */}
-            <span className="flex-1 text-center text-base font-semibold">
-              View Cart
-            </span>
-
-            {/* Right: total price */}
             {formattedTotal && (
-              <span className="text-sm font-bold opacity-90">
+              <span className="text-base font-bold">
                 {formattedTotal}
               </span>
             )}

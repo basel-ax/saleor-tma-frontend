@@ -24,12 +24,12 @@ export const QuantityStepper: FC<QuantityStepperProps> = ({
   const btnBase = `
     flex items-center justify-center rounded-tg font-bold
     transition-all duration-200 hover:scale-105 active:scale-95 select-none
-    ${isSmall ? "w-8 h-8" : "w-10 h-10"}
+    ${isSmall ? "w-9 h-9 text-lg" : "w-12 h-12 text-xl"}
   `;
 
   const countClass = `
     font-semibold tabular-nums text-center select-none
-    ${isSmall ? "w-6 text-sm" : "w-8 text-base"}
+    ${isSmall ? "w-8 text-base" : "w-10 text-lg"}
   `;
 
   return (

@@ -26,44 +26,50 @@ export const DishCard: FC<DishCardProps> = ({
 
   return (
     <div
-      className="flex flex-col w-full rounded-tg overflow-hidden shadow-tg transition-all duration-200 hover:shadow-tg-lg animate-fade-in cursor-pointer"
+      className="flex flex-col w-full rounded-tg overflow-hidden shadow-tg transition-all duration-200 hover:shadow-tg-lg animate-fade-in"
       style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
     >
-      <div className="aspect-[4/3] overflow-hidden rounded-tg">
-        {dish.imageUrl ? (
-          <>
-            <img
-              src={dish.imageUrl}
-              alt={dish.name}
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.currentTarget;
-                target.style.display = "none";
-                const placeholder =
-                  target.nextElementSibling as HTMLElement | null;
-                if (placeholder) placeholder.style.display = "flex";
-              }}
-            />
-            <div
-              className="absolute inset-0 items-center justify-center"
-              style={{
-                display: "none",
-                backgroundColor: "var(--tg-theme-secondary-bg-color)",
-              }}
-            >
-              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <button
+        onClick={() => onAdd(dish)}
+        className="w-full text-left"
+        aria-label={`Select ${dish.name}`}
+      >
+        <div className="aspect-[4/3] overflow-hidden rounded-tg">
+          {dish.imageUrl ? (
+            <>
+              <img
+                src={dish.imageUrl}
+                alt={dish.name}
+                className="w-full h-full object-cover"
+                onError={(e) => {
+                  const target = e.currentTarget;
+                  target.style.display = "none";
+                  const placeholder =
+                    target.nextElementSibling as HTMLElement | null;
+                  if (placeholder) placeholder.style.display = "flex";
+                }}
+              />
+              <div
+                className="absolute inset-0 items-center justify-center"
+                style={{
+                  display: "none",
+                  backgroundColor: "var(--tg-theme-secondary-bg-color)",
+                }}
+              >
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2l-9 9h5l3 9V9a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v4l3-9h5z"/>
+                </svg>
+              </div>
+            </>
+          ) : (
+            <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: "var(--tg-theme-bg-color)" }}>
+              <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="var(--tg-theme-hint-color)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M12 2l-9 9h5l3 9V9a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v4l3-9h5z"/>
               </svg>
             </div>
-          </>
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M12 2l-9 9h5l3 9V9a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v4l3-9h5z"/>
-            </svg>
-          </div>
-        )}
-      </div>
+          )}
+        </div>
+      </button>
 
       <div className="flex-1 min-w-0 flex flex-col justify-between gap-2 p-3">
         <div className="min-w-0">
@@ -74,41 +80,50 @@ export const DishCard: FC<DishCardProps> = ({
             {dish.name}
           </h3>
 
-          <p
-            className="text-xs sm:text-sm leading-snug line-clamp-2 mt-1"
-            style={{ color: "var(--tg-theme-hint-color)" }}
-          >
-            {dish.description}
-          </p>
+          {dish.description && (
+            <p
+              className="text-xs sm:text-sm leading-snug line-clamp-2 mt-1"
+              style={{ color: "var(--tg-theme-hint-color)" }}
+            >
+              {dish.description}
+            </p>
+          )}
         </div>
 
-        <div className="flex items-center justify-between gap-2 mt-2">
+        <div className="flex items-center justify-between mt-2">
           <span
-            className="text-base sm:text-lg font-bold"
-            style={{ color: "var(--tg-theme-text-color)" }}
+            className="text-lg sm:text-xl font-bold"
+            style={{ color: "var(--tg-theme-button-color)" }}
           >
             {formattedPrice}
           </span>
+        </div>
 
+        <div className="flex items-center justify-center mt-2">
           {quantity === 0 ? (
             <button
-              onClick={() => onAdd(dish)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onAdd(dish);
+              }}
               aria-label={`Add ${dish.name} to cart`}
-              className="flex items-center justify-center w-8 h-8 sm:w-9 sm:h-9 rounded-full font-bold text-lg transition-all duration-200 hover:scale-105 active:scale-95"
+              className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
               style={{
                 backgroundColor: "var(--tg-theme-button-color)",
                 color: "var(--tg-theme-button-text-color)",
               }}
             >
-              +
+              + Add to cart
             </button>
           ) : (
-            <QuantityStepper
-              quantity={quantity}
-              onIncrement={() => onIncrement(dish.id)}
-              onDecrement={() => onDecrement(dish.id)}
-              size="sm"
-            />
+            <div className="w-full flex items-center justify-center">
+              <QuantityStepper
+                quantity={quantity}
+                onIncrement={() => onIncrement(dish.id)}
+                onDecrement={() => onDecrement(dish.id)}
+                size="md"
+              />
+            </div>
           )}
         </div>
       </div>

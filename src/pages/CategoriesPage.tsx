@@ -164,7 +164,7 @@ const CategoriesPage: FC = () => {
               }}
               aria-label={`Browse ${category.name}`}
             >
-              <div className="aspect-[4/3] overflow-hidden">
+              <div className="aspect-[4/3] overflow-hidden rounded-tg">
                 {category.imageUrl ? (
                   <img
                     src={category.imageUrl}
@@ -180,13 +180,15 @@ const CategoriesPage: FC = () => {
                   />
                 ) : null}
                 <div
-                  className="w-full h-full flex items-center justify-center text-4xl sm:text-5xl"
+                  className="w-full h-full flex items-center justify-center"
                   style={{
                     display: category.imageUrl ? "none" : "flex",
                     backgroundColor: "var(--tg-theme-bg-color)",
                   }}
                 >
-                  🍴
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--tg-theme-hint-color)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M12 2l-9 9h5l3 9V9a2 2 0 0 1 2-2h5a2 2 0 0 1 2 2v4l3-9h5z"/>
+                  </svg>
                 </div>
               </div>
               <div className="p-3">

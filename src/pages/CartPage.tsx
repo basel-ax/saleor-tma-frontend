@@ -66,27 +66,35 @@ const CartPage: FC = () => {
        {/* Header */}
        <PageHeader title={t('cart_title')} showBack />
 
-       {/* Restaurant label */}
-       <div
-         className="mx-4 mb-3 px-3 py-2 rounded-tg flex items-center gap-2"
-         style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
-       >
-         <span className="text-lg">🏪</span>
-         <div className="min-w-0">
-           <p
-             className="text-xs font-medium uppercase tracking-wider mb-0.5"
-             style={{ color: "var(--tg-theme-hint-color)" }}
-           >
-             {t('ordering_from')}
-           </p>
-           <p
-             className="text-sm font-semibold truncate"
-             style={{ color: "var(--tg-theme-text-color)" }}
-           >
-             {cart.restaurantName}
-           </p>
-         </div>
-       </div>
+{/* Restaurant label */}
+        <div
+          className="mx-4 mb-4 mt-2 px-4 py-3 rounded-tg flex items-center gap-3"
+          style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+        >
+          <div 
+            className="w-10 h-10 rounded-lg flex items-center justify-center flex-shrink-0"
+            style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
+          >
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--tg-theme-text-color)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M3 9h18v10a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z" />
+              <path d="m3 9 2.45-4.9A2 2 0 0 1 7.24 3h9.52a2 2 0 0 1 1.8 1.1L21 9" />
+            </svg>
+          </div>
+          <div className="min-w-0">
+            <p
+              className="text-xs font-medium uppercase tracking-wider mb-0.5"
+              style={{ color: "var(--tg-theme-hint-color)" }}
+            >
+              {t('ordering_from')}
+            </p>
+            <p
+              className="text-base font-semibold truncate"
+              style={{ color: "var(--tg-theme-text-color)" }}
+            >
+              {cart.restaurantName}
+            </p>
+          </div>
+        </div>
 
       {/* Item list */}
       <div className="page-content pt-0">
@@ -179,7 +187,7 @@ const CartPage: FC = () => {
                       quantity={item.quantity}
                       onIncrement={() => handleIncrement(item.dishId)}
                       onDecrement={() => handleDecrement(item.dishId)}
-                      size="sm"
+                      size="md"
                     />
                   </div>
                 </div>
