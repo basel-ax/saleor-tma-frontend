@@ -25,6 +25,7 @@ export default {
       },
       fontFamily: {
         sans: [
+          '"DM Sans"',
           '-apple-system',
           'BlinkMacSystemFont',
           '"Segoe UI"',
@@ -33,11 +34,16 @@ export default {
           'Arial',
           'sans-serif',
         ],
+        serif: [
+          '"DM Serif Display"',
+          'Georgia',
+          'serif',
+        ],
       },
       borderRadius: {
-        'tg': '12px',
-        'tg-lg': '16px',
-        'tg-xl': '20px',
+        'tg': '16px',
+        'tg-lg': '20px',
+        'tg-xl': '24px',
       },
       spacing: {
         'safe-top': 'env(safe-area-inset-top)',
@@ -65,8 +71,8 @@ export default {
         },
       },
       boxShadow: {
-        'tg': '0 2px 12px rgba(0, 0, 0, 0.08)',
-        'tg-lg': '0 4px 24px rgba(0, 0, 0, 0.12)',
+        'tg': '0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)',
+        'tg-lg': '0 4px 12px rgba(0, 0, 0, 0.08)',
       },
     },
   },

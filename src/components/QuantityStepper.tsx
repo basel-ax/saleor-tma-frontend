@@ -22,19 +22,19 @@ export const QuantityStepper: FC<QuantityStepperProps> = ({
   const isSmall = size === "sm";
 
   const btnBase = `
-    flex items-center justify-center rounded-tg font-bold
-    transition-all duration-200 hover:scale-105 active:scale-95 select-none
-    ${isSmall ? "w-9 h-9 text-lg" : "w-12 h-12 text-xl"}
+    flex items-center justify-center rounded-xl font-semibold
+    transition-all duration-200 active:scale-95 select-none
+    ${isSmall ? "w-9 h-9 text-lg" : "w-11 h-11 text-xl"}
   `;
 
   const countClass = `
-    font-semibold tabular-nums text-center select-none
+    font-medium tabular-nums text-center select-none
     ${isSmall ? "w-8 text-base" : "w-10 text-lg"}
   `;
 
   return (
     <div
-      className={`flex items-center gap-2 ${className}`}
+      className={`flex items-center gap-2.5 ${className}`}
       onClick={(e) => e.stopPropagation()}
     >
       {/* Decrement */}

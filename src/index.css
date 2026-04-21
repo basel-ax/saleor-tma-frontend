@@ -1,20 +1,21 @@
 /* ─── Telegram Theme Variables (defaults — overridden by Telegram at runtime) ─ */
-/* Incorporating FoodOrderTMA design system colors while respecting Telegram theme */
+@import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap');
+
 :root {
-  --tg-theme-bg-color: #ffffff;
-  --tg-theme-text-color: #000000;
-  --tg-theme-hint-color: #999999;
-  --tg-theme-link-color: #3390ec;
-  --tg-theme-button-color: #DC2626; /* Primary: Appetizing red */
+  --tg-theme-bg-color: #fafaf9;
+  --tg-theme-text-color: #1c1917;
+  --tg-theme-hint-color: #78716c;
+  --tg-theme-link-color: #15803d;
+  --tg-theme-button-color: #166534;
   --tg-theme-button-text-color: #ffffff;
-  --tg-theme-secondary-bg-color: #f0f0f0;
-  --tg-theme-header-bg-color: #ffffff;
-  --tg-theme-bottom-bar-bg-color: #f0f0f0;
-  --tg-theme-accent-text-color: #CA8A04; /* CTA: Warm gold */
+  --tg-theme-secondary-bg-color: #f5f5f4;
+  --tg-theme-header-bg-color: #fafaf9;
+  --tg-theme-bottom-bar-bg-color: #f5f5f4;
+  --tg-theme-accent-text-color: #15803d;
   --tg-theme-section-bg-color: #ffffff;
-  --tg-theme-section-header-text-color: #DC2626; /* Primary: Appetizing red */
-  --tg-theme-subtitle-text-color: #450A0A; /* Text: Dark red */
-  --tg-theme-destructive-text-color: #e53935;
+  --tg-theme-section-header-text-color: #166534;
+  --tg-theme-subtitle-text-color: #14532d;
+  --tg-theme-destructive-text-color: #dc2626;
 }
 
 /* ─── Reset & Base ──────────────────────────────────────────────────────────── */
@@ -65,15 +66,17 @@ body {
 }
 
 /* ─── Typography ────────────────────────────────────────────────────────────── */
-/* Using Playfair Display SC for headings and Karla for body as per design system */
-
-@import url('https://fonts.googleapis.com/css2?family=Karla:wght@300;400;500;600;700&family=Playfair+Display+SC:wght@400;700&display=swap');
-
 h1, h2, h3, h4, h5, h6 {
   color: var(--tg-theme-text-color);
-  font-family: 'Playfair Display SC', serif;
-  font-weight: 700;
+  font-family: 'DM Serif Display', serif;
+  font-weight: 400;
   line-height: 1.25;
+}
+
+p {
+  color: var(--tg-theme-text-color);
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1.5;
 }
 
 p {
@@ -146,13 +149,14 @@ img {
 
 .tg-card {
   background-color: var(--tg-theme-secondary-bg-color);
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06);
 }
 
 .tg-section {
   background-color: var(--tg-theme-section-bg-color);
-  border-radius: 12px;
+  border-radius: 16px;
   overflow: hidden;
 }
 
@@ -165,17 +169,18 @@ img {
   gap: 8px;
   background-color: var(--tg-theme-button-color);
   color: var(--tg-theme-button-text-color);
-  border-radius: 12px;
-  padding: 14px 24px;
-  font-size: 16px;
-  font-weight: 600;
+  border-radius: 14px;
+  padding: 16px 28px;
+  font-size: 15px;
+  font-weight: 500;
   width: 100%;
-  transition: opacity 0.15s ease;
+  transition: opacity 0.2s ease, transform 0.15s ease;
   -webkit-tap-highlight-color: transparent;
 }
 
 .tg-btn:active {
-  opacity: 0.8;
+  opacity: 0.85;
+  transform: scale(0.985);
 }
 
 .tg-btn:disabled {
@@ -201,22 +206,22 @@ img {
 }
 
 @keyframes slideUp {
-  from { opacity: 0; transform: translateY(16px); }
+  from { opacity: 0; transform: translateY(20px); }
   to   { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes pulseSoft {
   0%, 100% { opacity: 1; }
-  50%       { opacity: 0.4; }
+  50%       { opacity: 0.5; }
 }
 
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
 
-.animate-fade-in  { animation: fadeIn  0.2s ease-in-out; }
-.animate-slide-up { animation: slideUp 0.3s ease-out; }
-.animate-pulse-soft { animation: pulseSoft 1.5s ease-in-out infinite; }
+.animate-fade-in  { animation: fadeIn  0.25s cubic-bezier(0.4, 0, 0.2, 1); }
+.animate-slide-up { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1); }
+.animate-pulse-soft { animation: pulseSoft 2s ease-in-out infinite; }
 .animate-spin { animation: spin 0.8s linear infinite; }
 
 /* ─── Skeleton Loader ────────────────────────────────────────────────────────── */
@@ -251,8 +256,8 @@ img {
 .page-content {
   flex: 1;
   overflow-y: auto;
-  padding: 12px 16px;
-  padding-bottom: calc(80px + env(safe-area-inset-bottom));
+  padding: 16px;
+  padding-bottom: calc(88px + env(safe-area-inset-bottom));
 }
 
 /* ─── Bottom action bar ─────────────────────────────────────────────────────── */
@@ -274,7 +279,7 @@ img {
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  background-color: rgba(0, 0, 0, 0.4);
   display: flex;
   align-items: flex-end;
   justify-content: center;
@@ -286,8 +291,8 @@ img {
   width: 100%;
   max-width: 480px;
   background-color: var(--tg-theme-bg-color);
-  border-radius: 20px 20px 0 0;
-  padding: 24px 20px;
-  padding-bottom: calc(24px + env(safe-area-inset-bottom));
-  animation: slideUp 0.25s ease-out;
+  border-radius: 24px 24px 0 0;
+  padding: 28px 24px;
+  padding-bottom: calc(28px + env(safe-area-inset-bottom));
+  animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }

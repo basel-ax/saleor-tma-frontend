@@ -26,15 +26,18 @@ export const DishCard: FC<DishCardProps> = ({
 
   return (
     <div
-      className="flex flex-col w-full rounded-tg overflow-hidden shadow-tg transition-all duration-200 hover:shadow-tg-lg animate-fade-in"
-      style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+      className="flex flex-col w-full rounded-2xl overflow-hidden animate-fade-in"
+      style={{ 
+        backgroundColor: "var(--tg-theme-secondary-bg-color)",
+        boxShadow: "0 1px 3px rgba(0, 0, 0, 0.04), 0 1px 2px rgba(0, 0, 0, 0.06)"
+      }}
     >
       <button
         onClick={() => onAdd(dish)}
         className="w-full text-left"
         aria-label={`Select ${dish.name}`}
       >
-        <div className="aspect-[4/3] overflow-hidden rounded-tg">
+        <div className="aspect-[4/3] overflow-hidden">
           {dish.imageUrl ? (
             <>
               <img
@@ -71,10 +74,10 @@ export const DishCard: FC<DishCardProps> = ({
         </div>
       </button>
 
-      <div className="flex-1 min-w-0 flex flex-col justify-between gap-2 p-3">
+      <div className="flex-1 min-w-0 flex flex-col justify-between gap-2.5 p-4">
         <div className="min-w-0">
           <h3
-            className="text-sm sm:text-base font-semibold leading-tight line-clamp-2"
+            className="text-sm sm:text-base font-medium leading-snug line-clamp-2"
             style={{ color: "var(--tg-theme-text-color)" }}
           >
             {dish.name}
@@ -82,7 +85,7 @@ export const DishCard: FC<DishCardProps> = ({
 
           {dish.description && (
             <p
-              className="text-xs sm:text-sm leading-snug line-clamp-2 mt-1"
+              className="text-xs sm:text-sm leading-relaxed line-clamp-2 mt-1.5"
               style={{ color: "var(--tg-theme-hint-color)" }}
             >
               {dish.description}
@@ -90,16 +93,16 @@ export const DishCard: FC<DishCardProps> = ({
           )}
         </div>
 
-        <div className="flex items-center justify-between mt-2">
+        <div className="flex items-center justify-between mt-3">
           <span
-            className="text-lg sm:text-xl font-bold"
+            className="text-lg sm:text-xl font-semibold"
             style={{ color: "var(--tg-theme-button-color)" }}
           >
             {formattedPrice}
           </span>
         </div>
 
-        <div className="flex items-center justify-center mt-2">
+        <div className="flex items-center justify-center mt-3">
           {quantity === 0 ? (
             <button
               onClick={(e) => {
@@ -107,13 +110,13 @@ export const DishCard: FC<DishCardProps> = ({
                 onAdd(dish);
               }}
               aria-label={`Add ${dish.name} to cart`}
-              className="w-full py-3 px-4 rounded-xl font-semibold text-sm transition-all duration-200 hover:opacity-90 active:scale-[0.98]"
+              className="w-full py-3.5 px-5 rounded-xl font-medium text-sm transition-all duration-200 active:scale-[0.98]"
               style={{
                 backgroundColor: "var(--tg-theme-button-color)",
                 color: "var(--tg-theme-button-text-color)",
               }}
             >
-              + Add to cart
+              Add to cart
             </button>
           ) : (
             <div className="w-full flex items-center justify-center">
