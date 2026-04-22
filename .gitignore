@@ -56,3 +56,7 @@ lerna-debug.log*
 .opencode/
 .playwright-mcp/console-2026-04-15T06-18-25-542Z.log
 .playwright-mcp/console-2026-04-15T06-20-03-251Z.log
+
+.dev.vars*
+!.dev.vars.example
+!.env.example
