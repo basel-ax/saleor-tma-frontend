@@ -25,6 +25,7 @@ export interface Dish {
   imageUrl: string;
   price: number;
   currency: string;
+  stock?: number;
 }
 
 // ─── GraphQL Input Types (for backend) ───────────────────────────────────────
@@ -101,4 +102,75 @@ export interface CheckoutFormState {
   googleMapsUrl: string;
   comment: string;
   locationError: string | null;
+}
+
+// ─── Admin ─────────────────────────────────────────────────────────────────────
+
+export type AdminRole = 'superadmin' | 'channel-admin' | 'none';
+
+export interface ChannelAdmin {
+  restaurantId: string;
+  telegramUserId: string;
+  assignedAt: string;
+  assignedBy: string;
+}
+
+export interface AdminChannel {
+  id: string;
+  name: string;
+  description?: string;
+  hasAdmin: boolean;
+}
+
+export interface CreateDishInput {
+  name: string;
+  description: string;
+  price: number;
+  currency: string;
+  categoryId: string;
+  restaurantId: string;
+  imageUrl?: string;
+}
+
+export interface UpdateDishInput {
+  dishId: string;
+  name?: string;
+  description?: string;
+  price?: number;
+  currency?: string;
+  imageUrl?: string;
+  restaurantId: string;
+}
+
+export interface UpdateStockInput {
+  dishId: string;
+  quantity: number;
+  restaurantId: string;
+}
+
+export interface UpdateStoreDescriptionInput {
+  restaurantId: string;
+  description: string;
+}
+
+export interface CreateDishResponse {
+  success: boolean;
+  dish: Dish;
+}
+
+export interface UpdateDishResponse {
+  success: boolean;
+  dish: Dish;
+}
+
+export interface UpdateStockResponse {
+  success: boolean;
+  dishId: string;
+  quantity: number;
+}
+
+export interface UpdateStoreDescriptionResponse {
+  success: boolean;
+  restaurantId: string;
+  description: string;
 }

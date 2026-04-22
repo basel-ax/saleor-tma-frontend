@@ -7,7 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { useCartStore } from "../store/cartStore";
 import { createOrder } from "../api";
 import type { DeliveryLocationInput, OrderItemInput, CartItem } from "../types";
-import PageHeader from "../components/PageHeader";
+import AppLayout from "../components/AppLayout";
 import EmptyState from "../components/EmptyState";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { useLanguage } from "../context/LanguageContext";
@@ -20,6 +20,8 @@ const CheckoutPage: FC = () => {
   const clearCart = useCartStore((s) => s.clearCart);
   const totalPrice = useCartStore((s) => s.totalPrice());
   const { t } = useLanguage();
+
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // ─── Form state ─────────────────────────────────────────────────────────────
   const [deliveryMode, setDeliveryMode] = useState<DeliveryMode>(null);
@@ -37,8 +39,14 @@ const CheckoutPage: FC = () => {
   // Early return if no cart
   if (!cart || cart.items.length === 0) {
     return (
-      <div className="page">
-        <PageHeader title="Checkout" showBack />
+      <AppLayout
+        title="Checkout"
+        icon="🛒"
+        showBack
+        settingsOpen={settingsOpen}
+        onSettingsOpen={() => setSettingsOpen(true)}
+        onSettingsClose={() => setSettingsOpen(false)}
+      >
         <EmptyState
           icon="🛒"
           title="Your cart is empty"
@@ -49,7 +57,7 @@ const CheckoutPage: FC = () => {
             </button>
           }
         />
-      </div>
+      </AppLayout>
     );
   }
 
@@ -252,14 +260,17 @@ const CheckoutPage: FC = () => {
     navigate,
   ]);
 
-  return (
-    <div className="page">
-       {/* Header */}
-       <PageHeader title={t('checkout_title')} showBack />
-
-      <div className="page-content">
-         {/* ── Order summary ── */}
-         <section className="mb-4">
+return (
+    <AppLayout
+      title={t('checkout_title')}
+      icon="🛒"
+      showBack
+      settingsOpen={settingsOpen}
+      onSettingsOpen={() => setSettingsOpen(true)}
+      onSettingsClose={() => setSettingsOpen(false)}
+    >
+      {/* ── Order summary ── */}
+      <section className="mb-4">
            <h2
              className="text-xs font-semibold uppercase tracking-wider mb-2 px-1"
              style={{ color: "var(--tg-theme-hint-color)" }}
@@ -637,9 +648,7 @@ const CheckoutPage: FC = () => {
           </div>
         )}
 
-        {/* Bottom spacer for fixed bar */}
         <div className="h-4" />
-      </div>
 
       {/* ── Place Order CTA ── */}
       <div className="bottom-bar">
@@ -668,7 +677,7 @@ const CheckoutPage: FC = () => {
           )}
         </button>
       </div>
-    </div>
+    </AppLayout>
   );
 };
 

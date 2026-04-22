@@ -9,6 +9,16 @@ import type {
    CreateOrderPayload,
    OrderSuccessResponse,
    Cart,
+   ChannelAdmin,
+   AdminChannel,
+   CreateDishInput,
+   UpdateDishInput,
+   UpdateStockInput,
+   UpdateStoreDescriptionInput,
+   CreateDishResponse,
+   UpdateDishResponse,
+   UpdateStockResponse,
+   UpdateStoreDescriptionResponse,
 } from '../types';
 
 type GraphQLResponse<D> = {
@@ -298,6 +308,160 @@ export async function createOrder(
       },
    );
    return data.placeOrder;
+}
+
+// ─── Admin ─────────────────────────────────────────────────────────────────────
+
+/** GET check if current user is superadmin */
+export async function fetchIsSuperadmin(): Promise<boolean> {
+   const query = `query { isSuperadmin }`;
+   const data = await requestGraphQL<{ isSuperadmin: boolean }>(query);
+   return data.isSuperadmin;
+}
+
+/** GET channel admin for a specific restaurant */
+export async function fetchChannelAdmin(
+   restaurantId: string,
+): Promise<ChannelAdmin | null> {
+   const query = `query GetChannelAdmin($restaurantId: ID!) {
+      channelAdmin(restaurantId: $restaurantId) {
+         restaurantId
+         telegramUserId
+         assignedAt
+         assignedBy
+      }
+   }`;
+   const data = await requestGraphQL<{ channelAdmin: ChannelAdmin | null }>(query, {
+      restaurantId,
+   });
+   return data.channelAdmin;
+}
+
+/** GET all channels where current user is admin */
+export async function fetchMyChannels(): Promise<AdminChannel[]> {
+   const query = `query {
+      myChannels {
+         id
+         name
+         description
+         hasAdmin
+      }
+   }`;
+   const data = await requestGraphQL<{ myChannels: AdminChannel[] }>(query);
+   return data.myChannels;
+}
+
+/** POST link channel to Telegram user (superadmin only) */
+export async function linkChannelToTelegram(input: {
+   restaurantId: string;
+   telegramUserId: string;
+}): Promise<ChannelAdmin> {
+   const mutation = `mutation LinkChannelToTelegram($input: LinkChannelInput!) {
+      linkChannelToTelegram(input: $input) {
+         success
+         channelAdmin {
+            restaurantId
+            telegramUserId
+            assignedAt
+            assignedBy
+         }
+      }
+   }`;
+   const data = await requestGraphQL<{
+      linkChannelToTelegram: { success: boolean; channelAdmin: ChannelAdmin };
+   }>(mutation, { input });
+   return data.linkChannelToTelegram.channelAdmin;
+}
+
+/** POST unlink channel (superadmin only) */
+export async function unlinkChannel(restaurantId: string): Promise<boolean> {
+   const mutation = `mutation UnlinkChannel($input: UnlinkChannelInput!) {
+      unlinkChannel(input: $input) {
+         success
+      }
+   }`;
+   const vars = { input: { restaurantId } };
+   // eslint-disable-next-line @typescript-eslint/no-explicit-any
+   const result: any = await requestGraphQL(mutation, vars);
+   return result.unlinkChannel.success;
+}
+
+/** POST create a new dish (channel admin only) */
+export async function createDish(input: CreateDishInput): Promise<CreateDishResponse> {
+   const mutation = `mutation CreateDish($input: CreateDishInput!) {
+      createDish(input: $input) {
+         success
+         dish {
+            id
+            name
+            description
+            price
+            currency
+            categoryId
+            imageUrl
+         }
+      }
+   }`;
+   const data = await requestGraphQL<{ createDish: CreateDishResponse }>(mutation, {
+      input,
+   });
+   return data.createDish;
+}
+
+/** POST update an existing dish (channel admin only) */
+export async function updateDish(
+   input: UpdateDishInput,
+): Promise<UpdateDishResponse> {
+   const mutation = `mutation UpdateDish($input: UpdateDishInput!) {
+      updateDish(input: $input) {
+         success
+         dish {
+            id
+            name
+            description
+            price
+            currency
+            categoryId
+            imageUrl
+         }
+      }
+   }`;
+   const data = await requestGraphQL<{ updateDish: UpdateDishResponse }>(mutation, {
+      input,
+   });
+   return data.updateDish;
+}
+
+/** POST update stock quantity (channel admin only) */
+export async function updateStock(input: UpdateStockInput): Promise<UpdateStockResponse> {
+   const mutation = `mutation UpdateStock($input: UpdateStockInput!) {
+      updateStock(input: $input) {
+         success
+         dishId
+         quantity
+      }
+   }`;
+   const data = await requestGraphQL<{ updateStock: UpdateStockResponse }>(mutation, {
+      input,
+   });
+   return data.updateStock;
+}
+
+/** POST update store description (channel admin only) */
+export async function updateStoreDescription(
+   input: UpdateStoreDescriptionInput,
+): Promise<UpdateStoreDescriptionResponse> {
+   const mutation = `mutation UpdateStoreDescription($input: UpdateStoreDescriptionInput!) {
+      updateStoreDescription(input: $input) {
+         success
+         restaurantId
+         description
+      }
+   }`;
+   const data = await requestGraphQL<{
+      updateStoreDescription: UpdateStoreDescriptionResponse;
+   }>(mutation, { input });
+   return data.updateStoreDescription;
 }
 
 // ─── Cart (GraphQL) Input Types ───────────────────────────────────────────────

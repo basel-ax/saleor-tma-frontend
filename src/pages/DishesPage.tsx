@@ -1,10 +1,10 @@
-import { type FC } from "react";
+import { useState, type FC } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { fetchDishes, fetchCategories, fetchRestaurants } from "../api";
 import { useCartStore } from "../store/cartStore";
 import type { Dish } from "../types";
-import PageHeader from "../components/PageHeader";
+import AppLayout from "../components/AppLayout";
 import DishCard from "../components/DishCard";
 
 import ErrorState from "../components/ErrorState";
@@ -18,6 +18,8 @@ const DishesPage: FC = () => {
   }>();
   const navigate = useNavigate();
   const { t } = useLanguage();
+  
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   const addItem = useCartStore((s) => s.addItem);
   const incrementItem = useCartStore((s) => s.incrementItem);
@@ -87,40 +89,51 @@ const DishesPage: FC = () => {
   // ─── Loading state ─────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="page">
-        <PageHeader title={category?.name ?? "Dishes"} showBack showCart />
-        <div className="page-content">
-          <div className="grid grid-cols-2 gap-3 sm:gap-4">
-            {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div
-                key={i}
-                className="rounded-tg overflow-hidden"
-                style={{
-                  backgroundColor: "var(--tg-theme-secondary-bg-color)",
-                }}
-              >
-                <div className="aspect-[4/3] skeleton" />
-                <div className="p-3 space-y-2">
-                  <div className="skeleton h-4 w-3/4 rounded" />
-                  <div className="skeleton h-3 w-full rounded" />
-                  <div className="flex items-center justify-between mt-2">
-                    <div className="skeleton h-4 w-12 rounded" />
-                    <div className="skeleton w-8 h-8 rounded-full" />
-                  </div>
+      <AppLayout
+        title={category?.name ?? "Dishes"}
+        icon="🍽️"
+        showBack
+        showCart
+        settingsOpen={settingsOpen}
+        onSettingsOpen={() => setSettingsOpen(true)}
+        onSettingsClose={() => setSettingsOpen(false)}
+      >
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          {[1, 2, 3, 4, 5, 6].map((i) => (
+            <div
+              key={i}
+              className="rounded-tg overflow-hidden"
+              style={{
+                backgroundColor: "var(--tg-theme-secondary-bg-color)",
+              }}
+            >
+              <div className="aspect-[4/3] skeleton" />
+              <div className="p-3 space-y-2">
+                <div className="skeleton h-4 w-3/4 rounded" />
+                <div className="skeleton h-3 w-full rounded" />
+                <div className="flex items-center justify-between mt-2">
+                  <div className="skeleton h-4 w-12 rounded" />
+                  <div className="skeleton w-8 h-8 rounded-full" />
                 </div>
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   // ─── Error state ───────────────────────────────────────────────────────────
   if (isError) {
     return (
-      <div className="page">
-        <PageHeader title={category?.name ?? "Dishes"} showBack />
+      <AppLayout
+        title={category?.name ?? "Dishes"}
+        icon="🍽️"
+        showBack
+        settingsOpen={settingsOpen}
+        onSettingsOpen={() => setSettingsOpen(true)}
+        onSettingsClose={() => setSettingsOpen(false)}
+      >
         <ErrorState
           title="Couldn't load dishes"
           message={
@@ -129,15 +142,22 @@ const DishesPage: FC = () => {
           }
           onRetry={() => refetch()}
         />
-      </div>
+      </AppLayout>
     );
   }
 
   // ─── Empty state ───────────────────────────────────────────────────────────
   if (!dishes || dishes.length === 0) {
     return (
-      <div className="page">
-        <PageHeader title={category?.name ?? "Dishes"} showBack showCart />
+      <AppLayout
+        title={category?.name ?? "Dishes"}
+        icon="🍽️"
+        showBack
+        showCart
+        settingsOpen={settingsOpen}
+        onSettingsOpen={() => setSettingsOpen(true)}
+        onSettingsClose={() => setSettingsOpen(false)}
+      >
         <EmptyState
           icon="🍽️"
           title={t('no_dishes_available')}
@@ -151,17 +171,21 @@ const DishesPage: FC = () => {
             </button>
           }
         />
-      </div>
+      </AppLayout>
     );
   }
 
-  // ─── Main render ───────────────────────────────────────────────────────────
+// ─── Main render ───────────────────────────────────────────────────────────
   return (
-    <div className="page">
-       {/* Header */}
-       <PageHeader title={category?.name ?? t('dishes_title')} showBack showCart />
-
-      {/* Category description */}
+    <AppLayout
+      title={category?.name ?? t('dishes_title')}
+      icon="🍽️"
+      showBack
+      showCart
+      settingsOpen={settingsOpen}
+      onSettingsOpen={() => setSettingsOpen(true)}
+      onSettingsClose={() => setSettingsOpen(false)}
+    >
       {category?.description && (
         <div className="px-4 pb-3">
           <p
@@ -173,41 +197,36 @@ const DishesPage: FC = () => {
         </div>
       )}
 
-       {/* Dish count label */}
-       <div className="px-4 pb-2">
-         <p
-           className="text-xs font-semibold uppercase tracking-wider"
-           style={{ color: "var(--tg-theme-hint-color)" }}
-         >
-           {t('dishes_section_label', dishes.length)}
-         </p>
-       </div>
-
-      {/* Dish list - 2 column grid */}
-      <div className="page-content pt-0">
-        <div className="grid grid-cols-2 gap-3 sm:gap-4 animate-slide-up">
-          {dishes.map((dish: Dish, index: number) => (
-            <div
-              key={dish.id}
-              className="animate-fade-in"
-              style={{
-                animationDelay: `${index * 40}ms`,
-                animationFillMode: "both",
-              }}
-            >
-              <DishCard
-                dish={dish}
-                quantity={getItemQuantity(dish.id)}
-                onAdd={handleAddDish}
-                onIncrement={handleIncrement}
-                onDecrement={handleDecrement}
-              />
-            </div>
-          ))}
-        </div>
+      <div className="px-4 pb-2">
+        <p
+          className="text-xs font-semibold uppercase tracking-wider"
+          style={{ color: "var(--tg-theme-hint-color)" }}
+        >
+          {t('dishes_section_label', dishes.length)}
+        </p>
       </div>
 
-      {/* Floating cart bar — shown when cart has items from this restaurant */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 animate-slide-up">
+        {dishes.map((dish: Dish, index: number) => (
+          <div
+            key={dish.id}
+            className="animate-fade-in"
+            style={{
+              animationDelay: `${index * 40}ms`,
+              animationFillMode: "both",
+            }}
+          >
+            <DishCard
+              dish={dish}
+              quantity={getItemQuantity(dish.id)}
+              onAdd={handleAddDish}
+              onIncrement={handleIncrement}
+              onDecrement={handleDecrement}
+            />
+          </div>
+        ))}
+      </div>
+
       {totalItems > 0 && cart?.restaurantId === restaurantId && (
         <div className="bottom-bar animate-slide-up">
           <button
@@ -238,7 +257,7 @@ const DishesPage: FC = () => {
           </button>
         </div>
       )}
-    </div>
+    </AppLayout>
   );
 };
 

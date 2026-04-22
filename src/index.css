@@ -296,3 +296,181 @@ img {
   padding-bottom: calc(28px + env(safe-area-inset-bottom));
   animation: slideUp 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
+
+/* ─── Nature Theme Colors ──────────────────────────────────────────────────── */
+
+:root {
+  --nature-forest: #1B4332;
+  --nature-moss: #2D6A4F;
+  --nature-pine: #40916C;
+  --nature-grass: #52B788;
+  --nature-mountain: #74C69D;
+  --nature-sky: #B7E4C7;
+  --nature-sunset: #F4A261;
+  --nature-river: #2A9D8F;
+  --nature-earth: #264653;
+}
+
+/* ─── App Header ──────────────────────────────────────────────────────────────── */
+
+.app-header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding-top: env(safe-area-inset-top);
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+/* ─── Header Decoration Layers ─────────────────────────────────────────── */
+
+.header-decoration {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.header-mountain-left {
+  position: absolute;
+  bottom: 0;
+  left: -20px;
+  width: 120px;
+  height: 60px;
+  background: linear-gradient(135deg, var(--nature-moss) 0%, var(--nature-forest) 100%);
+  clip-path: polygon(0 100%, 0 40%, 30% 60%, 60% 20%, 90% 50%, 100% 100%);
+  opacity: 0.6;
+}
+
+.header-mountain-right {
+  position: absolute;
+  bottom: 0;
+  right: -10px;
+  width: 100px;
+  height: 50px;
+  background: linear-gradient(135deg, var(--nature-pine) 0%, var(--nature-moss) 100%);
+  clip-path: polygon(0 100%, 10% 50%, 40% 70%, 70% 30%, 100% 60%, 100% 100%);
+  opacity: 0.5;
+}
+
+.header-pine-tree {
+  position: absolute;
+  bottom: 0;
+  width: 24px;
+  height: 40px;
+  background: var(--nature-forest);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  opacity: 0.7;
+}
+
+.header-pine-tree::before {
+  content: '';
+  position: absolute;
+  bottom: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 28px;
+  background: var(--nature-moss);
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+}
+
+.header-grass {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 8px;
+  background: linear-gradient(90deg, 
+    var(--nature-grass) 0%, 
+    var(--nature-pine) 25%, 
+    var(--nature-moss) 50%, 
+    var(--nature-pine) 75%, 
+    var(--nature-grass) 100%
+  );
+  opacity: 0.6;
+}
+
+/* ─── App Footer ────────────────────────────────────────────────────────────── */
+
+.app-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 50;
+  padding: 12px 16px;
+  padding-bottom: calc(12px + env(safe-area-inset-bottom));
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+  background: linear-gradient(180deg, 
+    var(--tg-theme-bg-color) 0%, 
+    var(--tg-theme-secondary-bg-color) 100%
+  );
+  border-top: 1px solid var(--tg-theme-secondary-bg-color);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.footer-decoration {
+  position: absolute;
+  top: -1px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, 
+    var(--nature-grass) 0%, 
+    var(--nature-pine) 33%, 
+    var(--nature-moss) 66%, 
+    var(--nature-grass) 100%
+  );
+  opacity: 0.8;
+}
+
+.footer-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  gap: 8px;
+}
+
+.footer-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 12px 8px;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+  cursor: pointer;
+  min-width: 64px;
+}
+
+.footer-item:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+.footer-icon-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background-color: var(--tg-theme-secondary-bg-color);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.footer-icon-btn:active {
+  transform: scale(0.92);
+  opacity: 0.85;
+}

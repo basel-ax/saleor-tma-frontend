@@ -16,6 +16,7 @@ import DishesPage from './pages/DishesPage';
 import CartPage from './pages/CartPage';
 import CheckoutPage from './pages/CheckoutPage';
 import OrderSuccessPage from './pages/OrderSuccessPage';
+import AdminPage from './pages/AdminPage';
 
 // ─── Telegram BackButton sync ─────────────────────────────────────────────────
 // Shows/hides the native Telegram back button based on the current route.
@@ -78,6 +79,9 @@ const AppRoutes: FC = () => {
 
         {/* Order success */}
         <Route path="/order-success" element={<OrderSuccessPage />} />
+
+        {/* Admin panel */}
+        <Route path="/admin" element={<AdminPage />} />
 
         {/* Fallback — redirect to home */}
         <Route path="*" element={<RestaurantsPage />} />

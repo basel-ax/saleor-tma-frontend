@@ -12,22 +12,20 @@ import RestaurantCard from "../components/RestaurantCard";
 import CartResetConfirmModal from "../components/CartResetConfirmModal";
 import ErrorState from "../components/ErrorState";
 import EmptyState from "../components/EmptyState";
-import CartBadge from "../components/CartBadge";
-import { LanguageSwitcher } from "../components/LanguageSwitcher";
-import { SettingsBottomSheet } from "../components/SettingsBottomSheet";
+import AppLayout from "../components/AppLayout";
 import { useLanguage } from "../context/LanguageContext";
 
-  const RestaurantsPage: FC = () => {
-    const navigate = useNavigate();
-    const isDifferentRestaurant = useCartStore((s) => s.isDifferentRestaurant);
-    const clearCart = useCartStore((s) => s.clearCart);
-    const { t } = useLanguage();
+const RestaurantsPage: FC = () => {
+  const navigate = useNavigate();
+  const isDifferentRestaurant = useCartStore((s) => s.isDifferentRestaurant);
+  const clearCart = useCartStore((s) => s.clearCart);
+  const { t } = useLanguage();
 
-    const [searchQuery, setSearchQuery] = useState("");
-    const [pendingRestaurant, setPendingRestaurant] = useState<Restaurant | null>(
-      null,
-    );
-    const [settingsOpen, setSettingsOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [pendingRestaurant, setPendingRestaurant] = useState<Restaurant | null>(
+    null,
+  );
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // ─── Data fetching ──────────────────────────────────────────────────────────
   const {
@@ -87,59 +85,48 @@ import { useLanguage } from "../context/LanguageContext";
   // ─── Loading state ───────────────────────────────────────────────────────────
   if (isLoading) {
     return (
-      <div className="page">
-        <div
-          className="flex items-center justify-between px-4 py-3 sticky top-0 z-40"
-          style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-        >
-<h1
-            className="text-xl font-bold"
-            style={{ color: "var(--tg-theme-text-color)" }}
-          >
-            🍽️ {t('restaurants_title')}
-          </h1>
-          <CartBadge />
-        </div>
-        {/* Search skeleton */}
+      <AppLayout
+        title={t('restaurants_title')}
+        icon="🍽️"
+        showCart
+        settingsOpen={settingsOpen}
+        onSettingsOpen={() => setSettingsOpen(true)}
+        onSettingsClose={() => setSettingsOpen(false)}
+      >
         <div className="px-4 pb-3">
           <div className="skeleton h-11 w-full rounded-xl" />
         </div>
-        {/* Card skeletons */}
-        <div className="page-content pt-0">
-          <div className="flex flex-col gap-3">
-            {[1, 2, 3].map((i) => (
-              <div key={i} className="rounded-tg overflow-hidden">
-                <div className="skeleton h-44 w-full" />
-                <div
-                  className="p-3 space-y-2"
-                  style={{
-                    backgroundColor: "var(--tg-theme-secondary-bg-color)",
-                  }}
-                >
-                  <div className="skeleton h-5 w-3/4 rounded" />
-                  <div className="skeleton h-4 w-full rounded" />
-                  <div className="skeleton h-4 w-1/2 rounded" />
-                </div>
+        <div className="flex flex-col gap-3">
+          {[1, 2, 3].map((i) => (
+            <div key={i} className="rounded-tg overflow-hidden">
+              <div className="skeleton h-44 w-full" />
+              <div
+                className="p-3 space-y-2"
+                style={{
+                  backgroundColor: "var(--tg-theme-secondary-bg-color)",
+                }}
+              >
+                <div className="skeleton h-5 w-3/4 rounded" />
+                <div className="skeleton h-4 w-full rounded" />
+                <div className="skeleton h-4 w-1/2 rounded" />
               </div>
-            ))}
-          </div>
+            </div>
+          ))}
         </div>
-      </div>
+      </AppLayout>
     );
   }
 
   // ─── Error state ─────────────────────────────────────────────────────────────
   if (isError) {
     return (
-      <div className="page">
-        <div className="flex items-center justify-between px-4 py-3">
-          <h1
-            className="text-xl font-bold"
-            style={{ color: "var(--tg-theme-text-color)" }}
-          >
-            🍽️ {t('restaurants_title')}
-          </h1>
-        </div>
+      <AppLayout
+        title={t('restaurants_title')}
+        icon="🍽️"
+        settingsOpen={settingsOpen}
+        onSettingsOpen={() => setSettingsOpen(true)}
+        onSettingsClose={() => setSettingsOpen(false)}
+      >
         <ErrorState
           title={t('something_went_wrong')}
           message={
@@ -148,167 +135,124 @@ import { useLanguage } from "../context/LanguageContext";
           }
           onRetry={() => refetch()}
         />
-      </div>
+      </AppLayout>
     );
   }
 
   // ─── Main render ─────────────────────────────────────────────────────────────
   return (
-    <div className="page">
-{/* Header */}
-       <div
-          className="flex items-center justify-between px-4 py-3 sticky top-0 z-40"
-          style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
+    <AppLayout
+      title={t('restaurants_title')}
+      icon="🍽️"
+      showCart
+      settingsOpen={settingsOpen}
+      onSettingsOpen={() => setSettingsOpen(true)}
+      onSettingsClose={() => setSettingsOpen(false)}
+    >
+      {/* Search */}
+      <div className="px-4 pb-3">
+        <div
+          className="flex items-center gap-2 rounded-xl px-3 h-12 border transition-all duration-200"
+          style={{ 
+            backgroundColor: "var(--tg-theme-secondary-bg-color)",
+            borderColor: "var(--tg-theme-secondary-bg-color)",
+            boxShadow: "0 1px 3px rgba(0,0,0,0.08)"
+          }}
         >
-<h1
-            className="text-xl font-bold"
-            style={{ color: "var(--tg-theme-text-color)" }}
+          <svg
+            width="18"
+            height="18"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="var(--tg-theme-hint-color)"
+            strokeWidth="2"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+            className="flex-shrink-0"
           >
-            {t('restaurants_title')}
-          </h1>
-           <div className="flex items-center gap-1">
-            <LanguageSwitcher className="flex-shrink-0"></LanguageSwitcher>
+            <circle cx="11" cy="11" r="8" />
+            <line x1="21" y1="21" x2="16.65" y2="16.65" />
+          </svg>
+          <input
+            type="search"
+            placeholder={t('search_placeholder')}
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="flex-1 bg-transparent text-base outline-none"
+            style={{ color: "var(--tg-theme-text-color)" }}
+            aria-label="Search restaurants"
+          />
+          {searchQuery && (
             <button
-              onClick={() => setSettingsOpen(true)}
-              aria-label="Settings"
-              className="flex-shrink-0 flex items-center justify-center w-9 h-9 rounded-full transition-all duration-150 active:scale-90"
-              style={{ backgroundColor: "var(--tg-theme-secondary-bg-color)" }}
+              onClick={() => setSearchQuery("")}
+              aria-label={t('clear_search')}
+              className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold transition-all duration-200 hover:scale-110 active:scale-90"
+              style={{
+                backgroundColor: "var(--tg-theme-hint-color)",
+                color: "var(--tg-theme-secondary-bg-color)",
+              }}
             >
-              <svg
-                width="18"
-                height="18"
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="var(--tg-theme-text-color)"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="12" r="1" />
-                <circle cx="12" cy="5" r="1" />
-                <circle cx="12" cy="19" r="1" />
+              <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18" />
+                <line x1="6" y1="6" x2="18" y2="18" />
               </svg>
             </button>
-            <CartBadge />
-           </div>
+          )}
         </div>
-
-{/* Search */}
-        <div
-          className="px-4 pb-3 sticky top-[52px] z-30"
-          style={{ backgroundColor: "var(--tg-theme-bg-color)" }}
-        >
-          <div
-            className="flex items-center gap-2 rounded-xl px-3 h-12 border transition-all duration-200"
-            style={{ 
-              backgroundColor: "var(--tg-theme-secondary-bg-color)",
-              borderColor: "var(--tg-theme-secondary-bg-color)",
-              boxShadow: "0 1px 3px rgba(0,0,0,0.08)"
-            }}
-          >
-            <svg
-              width="18"
-              height="18"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="var(--tg-theme-hint-color)"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              aria-hidden="true"
-              className="flex-shrink-0"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <line x1="21" y1="21" x2="16.65" y2="16.65" />
-            </svg>
-            <input
-              type="search"
-              placeholder={t('search_placeholder')}
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="flex-1 bg-transparent text-base outline-none"
-              style={{ color: "var(--tg-theme-text-color)" }}
-              aria-label="Search restaurants"
-            />
-            {searchQuery && (
-              <button
-                onClick={() => setSearchQuery("")}
-                aria-label={t('clear_search')}
-                className="flex-shrink-0 w-6 h-6 flex items-center justify-center rounded-full text-sm font-bold transition-all duration-200 hover:scale-110 active:scale-90"
-                style={{
-                  backgroundColor: "var(--tg-theme-hint-color)",
-                  color: "var(--tg-theme-secondary-bg-color)",
-                }}
-              >
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                  <line x1="18" y1="6" x2="6" y2="18" />
-                  <line x1="6" y1="6" x2="18" y2="18" />
-                </svg>
-              </button>
-            )}
-          </div>
-        </div>
-
-       {/* Restaurant list */}
-       <div className="page-content pt-0">
-         {filteredRestaurants.length === 0 ? (
-           searchQuery ? (
-<EmptyState
-                icon="🔍"
-                title={t('no_results_found')}
-                description={t('no_results_description', searchQuery)}
-                action={
-                  <button
-                    className="tg-btn tg-btn-secondary"
-                    onClick={() => setSearchQuery("")}
-                  >
-                    {t('clear_search')}
-                  </button>
-                }
-              />
-           ) : (
-<EmptyState
-                icon="🏪"
-                title={t('no_restaurants_available')}
-                description={t('no_restaurants_description')}
-                action={
-                  <button className="tg-btn" onClick={() => refetch()}>
-                    {t('refresh')}
-                  </button>
-                }
-              />
-           )
-         ) : (
-           <div className="flex flex-col gap-3 animate-slide-up">
-             {filteredRestaurants.map((restaurant) => (
-               <RestaurantCard
-                 key={restaurant.id}
-                 restaurant={restaurant}
-                 onClick={handleSelectRestaurant}
-               />
-             ))}
-           </div>
-         )}
-       </div>
-
-        {/* Cart reset confirmation modal */}
-        {pendingRestaurant && (
-          <CartResetConfirmModal
-            newRestaurantName={pendingRestaurant.name}
-            onConfirm={handleConfirmSwitch}
-            onCancel={handleCancelSwitch}
-          />
-        )}
-        
-        {/* Settings bottom sheet */}
-        <SettingsBottomSheet
-          isOpen={settingsOpen}
-          onClose={() => setSettingsOpen(false)}
-        />
       </div>
-    );
-  };
+
+      {{/* Restaurant list */}}
+      {filteredRestaurants.length === 0 ? (
+        searchQuery ? (
+          <EmptyState
+            icon="🔍"
+            title={t('no_results_found')}
+            description={t('no_results_description', searchQuery)}
+            action={
+              <button
+                className="tg-btn tg-btn-secondary"
+                onClick={() => setSearchQuery("")}
+              >
+                {t('clear_search')}
+              </button>
+            }
+          />
+        ) : (
+          <EmptyState
+            icon="🏪"
+            title={t('no_restaurants_available')}
+            description={t('no_restaurants_description')}
+            action={
+              <button className="tg-btn" onClick={() => refetch()}>
+                {t('refresh')}
+              </button>
+            }
+          />
+        )
+      ) : (
+        <div className="flex flex-col gap-3 animate-slide-up">
+          {filteredRestaurants.map((restaurant) => (
+            <RestaurantCard
+              key={restaurant.id}
+              restaurant={restaurant}
+              onClick={handleSelectRestaurant}
+            />
+          ))}
+        </div>
+      )}
+
+      {{/* Cart reset confirmation modal */}}
+      {pendingRestaurant && (
+        <CartResetConfirmModal
+          newRestaurantName={pendingRestaurant.name}
+          onConfirm={handleConfirmSwitch}
+          onCancel={handleCancelSwitch}
+        />
+      )}
+    </AppLayout>
+  );
+};
 
 export { RestaurantsPage };
 export default RestaurantsPage;
